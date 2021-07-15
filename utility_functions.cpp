@@ -30,7 +30,7 @@ std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     for (const auto & entry : std::filesystem::directory_iterator(workspace_root)) {
         std::string search_path = entry.path().string();  // Convert  fs path to string
         if (search_string_for_substring(search_path, job_num)) {
-            for (std::string bad_dir : invalid_directories) {
+            for (const std::string &bad_dir : invalid_directories) {
                 if (!search_string_for_substring(search_path, bad_dir)) {
                     return search_path;
                 }
