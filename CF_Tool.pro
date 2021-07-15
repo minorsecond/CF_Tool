@@ -11,10 +11,12 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    miniz.c \
     utility_functions.cpp
 
 HEADERS += \
     mainwindow.h \
+    miniz.h \
     utility_functions.h
 
 FORMS += \
@@ -24,3 +26,5 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES +=
