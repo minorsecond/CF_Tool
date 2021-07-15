@@ -8,9 +8,6 @@
 #include <objbase.h>
 #include <iostream>
 
-#pragma comment(lib,"Shell32")
-#pragma comment(lib,"Ole32")
-
 std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     /*
      * Recursively scan workspace root path to find path of specific job workspace.
@@ -47,11 +44,11 @@ void UtilityFunctions::create_directories() {
      * @param username: The user's username. This detemrines where the directories are created.
      */
 
-    const std::string home_path {get_home_path()};
-    const std::string desktop_path {home_path + "\\Desktop\\"};
+    const std::string desktop_path {get_home_path() + "\\Desktop\\"};
     const std::string workspace_path {desktop_path + "Workspaces"};
-    const std::string deliverable_path {desktop_path + "\\Deliverables"};
+    const std::string deliverable_path {desktop_path + "Deliverables"};
 
+    std::cout << deliverable_path << std::endl;
     const std::vector<std::string> paths {workspace_path, deliverable_path};
     for (const std::string &path : paths) {
         CreateDirectoryA(path.c_str(), NULL);
