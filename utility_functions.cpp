@@ -183,12 +183,8 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
-    // Convert string to wchar_t
-    std::wstring tmp_dir_ws {std::wstring(tmp_dir.begin(), tmp_dir.end())};
-    std::wstring out_path_ws {std::wstring(out_path.begin(), out_path.end())};
+    // Convert string to ws
     std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
-    const wchar_t* tmp_dir_wt {tmp_dir_ws.c_str()};
-    const wchar_t* out_path_wt {out_path_ws.c_str()};
 
     std::cout << "Creating " << dir_structure << std::endl;
     create_directory_recursively(dir_structure_ws);
