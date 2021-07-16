@@ -47,7 +47,7 @@ void UtilityFunctions::create_directories() {
      * @param username: The user's username. This detemrines where the directories are created.
      */
 
-    const std::string desktop_path {get_home_path() + "\\Desktop\\"};
+    const std::string desktop_path {get_home_path() + "\\\\OneDrive - Congruex\\Desktop\\"};
     const std::string workspace_path {desktop_path + "Workspaces"};
     const std::string deliverable_path {desktop_path + "Deliverables"};
 
