@@ -1,7 +1,9 @@
 #include "utility_functions.h"
+#include "elzip.hpp"
 
 #include <filesystem>
 #include <string>
+#include <chrono>
 
 #include <windows.h>
 #include <shlobj.h>
@@ -108,10 +110,14 @@ void UtilityFunctions::unzip_file(const std::string path, const std::string job_
      * @param path: The path to the zip file
      */
 
-    // TODO: use ZipLib library to unzip files
+
+    const std::string target {get_home_path() + "\\Downloads\\tmp"};
+    CreateDirectoryA(target.c_str(), NULL);
+    std::cout << "Extracting " << path << " to " << target << std::endl;
+    elz::extractZip(path, target);
 }
 
-void UtilityFunctions::zip_file(const std::string folder_path, const std::string job_num) {
+void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {
     /*
      * Compress files in directory into a zip file. Files will have timestamp in name,
      * in the format YYYY-MM-DD_JOBNUM.zip
@@ -119,5 +125,60 @@ void UtilityFunctions::zip_file(const std::string folder_path, const std::string
      * @param job_num: Job ID that will be used in resultant file name.
      */
 
-    // TODO: Finish this method
+    const std::string date {get_local_date()};
+    const std::string target {get_home_path() + "\\Desktop\\Deliverables\\" + date + "-" + job_num};
+    std::cout << "Compressing files in " << folder_path << " to " << target << std::endl;
+    elz::zipFolder(folder_path, target);
+}
+
+std::string UtilityFunctions::get_local_date() {
+    /*
+     * Get date in localtime
+     * @return: A string denoting the date in localtime, with the format YYYYMMDD
+     */
+
+    // Get today's date in local time.
+    char query_date[10];
+    std::string output;
+
+    auto todays_date = std::chrono::system_clock::now();
+    auto now_c = std::chrono::system_clock::to_time_t(todays_date);
+    std::tm now_tm = *std::localtime(&now_c);
+    std::strftime(query_date, sizeof query_date, "%Y%m%d", &now_tm);
+
+    for (char i : query_date) {
+        output += std::string(1, i);
+    }
+
+    return output;
+}
+
+std::string UtilityFunctions::find_zip_file(const std::string job_number) {
+    /*
+     * Finds zip file in Downloads directory that contains job_number
+     * @param job_number: Job number to search for
+     */
+
+    const std::string download_path {get_home_path() + "\\Downloads\\"};
+    for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
+        std::string search_path = entry.path().string();
+        if (search_string_for_substring(search_path, job_number)) {
+            return search_path;
+        }
+    }
+
+    return "FILENOTFOUND";
+}
+
+void UtilityFunctions::move_extracted_files(const std::string job_num) {
+    /*
+     * Move all of the extracted shapefiles from _tmp into working directory
+     * @param job_num: Job ID. This will be used to create the working directory
+     */
+    const std::string home {get_home_path()};
+    const std::string tmp_dir {home + "\\Downloads\\tmp"};
+    const std::string date {get_local_date()};
+    const std::string out_path {home + "\\Desktop\\Deliverables\\" + date + "-" + job_num};
+    //CreateDirectoryA(out_path.c_str(), NULL);
+    std::filesystem::rename(tmp_dir, out_path);
 }
