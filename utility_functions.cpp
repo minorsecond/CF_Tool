@@ -115,7 +115,7 @@ void UtilityFunctions::unzip_file(const std::string path, const std::string job_
     elz::extractFile(path, target);
 }
 
-void UtilityFunctions::zip_file(const std::string folder_path, const std::string job_num) {
+void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {
     /*
      * Compress files in directory into a zip file. Files will have timestamp in name,
      * in the format YYYY-MM-DD_JOBNUM.zip
@@ -123,7 +123,10 @@ void UtilityFunctions::zip_file(const std::string folder_path, const std::string
      * @param job_num: Job ID that will be used in resultant file name.
      */
 
-    // TODO: Finish this method
+    const std::string date {get_local_date()};
+    const std::string target {get_home_path() + "\\Desktop\\Deliverables\\" + date + "_" + job_num};
+    std::cout << "Compressing files in " << folder_path << " to " << target << std::endl;
+    elz::zipFolder(folder_path, target);
 }
 
 std::string UtilityFunctions::get_local_date() {
