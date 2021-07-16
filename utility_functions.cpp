@@ -1,4 +1,5 @@
 #include "utility_functions.h"
+#include "elzip.hpp"
 
 #include <filesystem>
 #include <string>
@@ -109,7 +110,9 @@ void UtilityFunctions::unzip_file(const std::string path, const std::string job_
      * @param path: The path to the zip file
      */
 
-    // TODO: use ZipLib library to unzip files
+    const std::string target {get_home_path() + "\\Downloads\\" + job_num + ".zip"};
+    std::cout << "Extracting " << path << " to " << target << std::endl;
+    elz::extractFile(path, target);
 }
 
 void UtilityFunctions::zip_file(const std::string folder_path, const std::string job_num) {
