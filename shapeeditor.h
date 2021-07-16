@@ -8,7 +8,7 @@ class ShapeEditor
 {
 public:
     GDALDriverH gdaldriver {GDALGetDriverByName("ESRI Shapefile")};
-    OGRDataSource* shapefile_reader(const std::string path);
+    OGRLayer* shapefile_reader(const std::string path);
     ShapeEditor();
 };
 
