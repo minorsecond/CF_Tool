@@ -9,8 +9,8 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dbf_editor.cpp \
     elzip.cpp \
+    errorwindow.cpp \
     main.cpp \
     mainwindow.cpp \
     miniz.c \
@@ -43,6 +43,7 @@ SOURCES += \
 HEADERS += \
     dbf_editor.h \
     elzip.hpp \
+    errorwindow.h \
     fswrapper.hpp \
     mainwindow.h \
     miniz.h \
@@ -69,6 +70,7 @@ HEADERS += \
     zipper.hpp
 
 FORMS += \
+    errorwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
