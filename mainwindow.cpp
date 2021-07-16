@@ -45,16 +45,26 @@ void MainWindow::handle_cw_process_button() {
     const std::string state {ui->WC_StateInput->currentText().toStdString()};
 
     const std::string home_path {ut.get_home_path()};
+    std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
     std::string zip_path {ut.find_zip_file(job_id)};
 
     std::cout << zip_path << std::endl;
-    // Extract files to C:\Users\USERNAME\Downloads\_tmp
-    if (zip_path != "FILENOTFOUND") {
-        ut.unzip_file(zip_path);
-    }
 
-    ut.move_extracted_files(job_id);  // Move files to working directory
+    if (!job_id.empty() && !city.empty() && !state.empty()) {
+        // Extract files to C:\Users\USERNAME\Downloads\_tmp
+        if (zip_path != "FILENOTFOUND") {
+            ut.unzip_file(zip_path);
+        } else {
+            std::cout << "Couldn't find zip file in downloads directory" << std::endl;
+            //TODO: error window
+        }
+
+        ut.move_extracted_files(job_id, city, state);  // Move files to working directory
+    } else {
+        std::cout << "Not all required fields populated" << std::endl;
+        //TODO: error window
+    }
 }
 
 MainWindow::~MainWindow()

@@ -9,6 +9,7 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
+#include <unistd.h>
 
 std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     /*
@@ -170,7 +171,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     return "FILENOTFOUND";
 }
 
-void UtilityFunctions::move_extracted_files(const std::string job_num) {
+void UtilityFunctions::move_extracted_files(const std::string job_num, const std::string city, const std::string state) {
     /*
      * Move all of the extracted shapefiles from _tmp into working directory
      * @param job_num: Job ID. This will be used to create the working directory
@@ -178,15 +179,60 @@ void UtilityFunctions::move_extracted_files(const std::string job_num) {
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
     const std::string date {get_local_date()};
-    const std::string out_path {home + "\\Documents\\" + date.c_str() + "-" + job_num.c_str()};
+    const std::string dir_structure {home + "\\Documents\\" + state + "\\" + city};
+    const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
     // Convert string to wchar_t
     std::wstring tmp_dir_ws {std::wstring(tmp_dir.begin(), tmp_dir.end())};
     std::wstring out_path_ws {std::wstring(out_path.begin(), out_path.end())};
+    std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
     const wchar_t* tmp_dir_wt {tmp_dir_ws.c_str()};
     const wchar_t* out_path_wt {out_path_ws.c_str()};
 
-    _wrename(tmp_dir_wt, out_path_wt);
-    //std::filesystem::rename(tmp_dir, out_path);
+    std::cout << "Creating " << dir_structure << std::endl;
+    create_directory_recursively(dir_structure_ws);
+
+    //_wrename(tmp_dir_wt, out_path_wt);
+    std::filesystem::rename(tmp_dir, out_path);
+}
+
+void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
+    /*
+     * Create directories and subdirectories if they don't exist
+     * @param directory: The path to create
+     */
+
+    static const std::wstring separators(L"\\/");
+
+      // If the specified directory name doesn't exist, do our thing
+      DWORD fileAttributes = ::GetFileAttributesW(directory.c_str());
+      if(fileAttributes == INVALID_FILE_ATTRIBUTES) {
+
+        // Recursively do it all again for the parent directory, if any
+        std::size_t slashIndex = directory.find_last_of(separators);
+        if(slashIndex != std::wstring::npos) {
+          create_directory_recursively(directory.substr(0, slashIndex));
+        }
+
+        // Create the last directory on the path (the recursive calls will have taken
+        // care of the parent directories by now)
+        std::wcout << "Attempting to create " << directory << std::endl;
+        BOOL result = ::CreateDirectoryW(directory.c_str(), nullptr);
+        if(result == FALSE) {
+          throw std::runtime_error("Could not create directory");
+        }
+
+      } else { // Specified directory name already exists as a file or directory
+
+        bool isDirectoryOrJunction =
+          ((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) ||
+          ((fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0);
+
+        if(!isDirectoryOrJunction) {
+          throw std::runtime_error(
+            "Could not create directory because a file with the same name exists"
+          );
+        }
+      }
 }
