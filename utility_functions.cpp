@@ -110,9 +110,11 @@ void UtilityFunctions::unzip_file(const std::string path, const std::string job_
      * @param path: The path to the zip file
      */
 
-    const std::string target {get_home_path() + "\\Downloads\\" + job_num + ".zip"};
+
+    const std::string target {get_home_path() + "\\Downloads\\tmp"};
+    CreateDirectoryA(target.c_str(), NULL);
     std::cout << "Extracting " << path << " to " << target << std::endl;
-    elz::extractFile(path, target);
+    elz::extractZip(path, target);
 }
 
 void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {

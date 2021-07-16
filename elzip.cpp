@@ -17,14 +17,14 @@ namespace elz
             std::filesystem::path cDir(target + ((std::filesystem::path(filename).parent_path().string() == "") ? "" : "/") + std::filesystem::path(filename).parent_path().string());
             std::filesystem::path cFile(target + "/" + filename);
             std::filesystem::path fillPath;
-            for (std::filesystem::path pathPart : cDir)
-            {
-                fillPath /= pathPart;
-                if (!exists(fillPath))
-                {
-                    create_directory(fillPath);
-                }
-            }
+            //for (std::filesystem::path pathPart : cDir)
+            //{
+            //    fillPath /= pathPart;
+            //    if (!exists(fillPath))
+            //    {
+            //        create_directory(fillPath);
+            //    }
+            // }
             // std::cout << "Opening file : " << filename << std::endl;
             zipFile.openEntry(filename.c_str());
             std::ofstream wFile;
