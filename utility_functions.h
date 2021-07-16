@@ -13,6 +13,7 @@ public:
     void process_downloaded_data(const std::string job_num);
     void unzip_file(const std::string path, const std::string job_num);
     void zip_file(const std::string folder_path, const std::string job_num);
+    std::string get_local_date();
 };
 
 #endif // UTILITY_FUNCTIONS_H
