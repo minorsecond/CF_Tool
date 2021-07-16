@@ -116,6 +116,14 @@ void UtilityFunctions::unzip_file(const std::string path) {
     CreateDirectoryA(target.c_str(), NULL);
     std::cout << "Extracting " << path << " to " << target << std::endl;
     elz::extractZip(path, target);
+
+    // Add a _ to end of file to mark it as having been processed
+    // First, get file path without .zip extension
+    size_t lastindex {path.find_last_of(".")};
+    std::string naked_path {path.substr(0, lastindex)};
+    // Next, add the _
+    naked_path += "_.zip";
+    std::filesystem::rename(path, naked_path);
 }
 
 void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {
@@ -186,11 +194,13 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     // Convert string to ws
     std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
 
-    std::cout << "Creating " << dir_structure << std::endl;
-    create_directory_recursively(dir_structure_ws);
-
     //_wrename(tmp_dir_wt, out_path_wt);
-    std::filesystem::rename(tmp_dir, out_path);
+
+    try {
+       std::filesystem::rename(tmp_dir, out_path);
+    }  catch (std::filesystem::__cxx11::filesystem_error) {
+        std::cout << out_path << " already exists" << std::endl;
+    }
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
@@ -231,4 +241,23 @@ void UtilityFunctions::create_directory_recursively(const std::wstring &director
           );
         }
       }
+}
+
+void UtilityFunctions::build_working_dirs(const std::string job_num, const std::string city, const std::string state) {
+    /*
+     * Create workspace and working directory
+     * @param job_num: The job number to be used in directory names
+     */
+
+    const std::string home {get_home_path()};
+    const std::string date {get_local_date()};
+    const std::string gis_path {home + "\\Documents\\" + state + "\\" + city};
+    const std::string work_path {home + "\\OneDrive - Congruex\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
+                date.c_str() + "-" + job_num.c_str()};
+
+    std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
+    std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};
+
+    create_directory_recursively(gis_path_ws);
+    create_directory_recursively(work_path_ws);
 }
