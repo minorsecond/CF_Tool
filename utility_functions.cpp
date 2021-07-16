@@ -116,6 +116,14 @@ void UtilityFunctions::unzip_file(const std::string path) {
     CreateDirectoryA(target.c_str(), NULL);
     std::cout << "Extracting " << path << " to " << target << std::endl;
     elz::extractZip(path, target);
+
+    // Add a _ to end of file to mark it as having been processed
+    // First, get file path without .zip extension
+    size_t lastindex {path.find_last_of(".")};
+    std::string naked_path {path.substr(0, lastindex)};
+    // Next, add the _
+    naked_path += "_.zip";
+    std::filesystem::rename(path, naked_path);
 }
 
 void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {
