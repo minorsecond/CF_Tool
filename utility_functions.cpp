@@ -104,7 +104,7 @@ void UtilityFunctions::process_downloaded_data(const std::string job_num) {
     }
 }
 
-void UtilityFunctions::unzip_file(const std::string path, const std::string job_num) {
+void UtilityFunctions::unzip_file(const std::string path) {
     /*
      * Unzip the zip file located at path.
      * @param path: The path to the zip file
