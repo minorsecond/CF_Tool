@@ -17,6 +17,7 @@ public:
     std::string find_zip_file(const std::string job_number);
     void move_extracted_files(const std::string job_num, const std::string city, const std::string state);
     void create_directory_recursively(const std::wstring &directory);
+    void build_working_dirs(const std::string job_num, const std::string city, const std::string state);
 };
 
 #endif // UTILITY_FUNCTIONS_H

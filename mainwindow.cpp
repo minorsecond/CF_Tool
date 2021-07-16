@@ -54,6 +54,7 @@ void MainWindow::handle_cw_process_button() {
     if (!job_id.empty() && !city.empty() && !state.empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
+            ut.build_working_dirs(job_id, city, state);
             ut.unzip_file(zip_path);
         } else {
             std::cout << "Couldn't find zip file in downloads directory" << std::endl;
