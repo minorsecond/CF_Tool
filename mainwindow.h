@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+private slots:
     void handle_cw_process_button();
 };
 #endif // MAINWINDOW_H

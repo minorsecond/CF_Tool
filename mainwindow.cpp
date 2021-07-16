@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include "utility_functions.h"
 
+#include <iostream>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -27,6 +29,9 @@ MainWindow::MainWindow(QWidget *parent)
         ui->WC_StateInput->addItem(state);
         ui->DA_StateInput->addItem(state);
     }
+
+    // Slots
+    connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -43,6 +48,7 @@ void MainWindow::handle_cw_process_button() {
 
     std::string zip_path {ut.find_zip_file(job_id)};
 
+    std::cout << zip_path << std::endl;
     // Extract files to C:\Users\USERNAME\Downloads\_tmp
     if (zip_path != "FILENOTFOUND") {
         ut.unzip_file(zip_path, job_id);
