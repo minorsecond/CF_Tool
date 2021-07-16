@@ -99,7 +99,7 @@ void UtilityFunctions::process_downloaded_data(const std::string job_num) {
     for (const auto & entry : std::filesystem::directory_iterator(downloads_path)) {
         std::string search_path = entry.path().string();  // Convert  fs path to string
         if (search_string_for_substring(search_path, job_num)) {
-            unzip_file(search_path, job_num);
+            unzip_file(search_path);
         }
     }
 }
@@ -178,7 +178,15 @@ void UtilityFunctions::move_extracted_files(const std::string job_num) {
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
     const std::string date {get_local_date()};
-    const std::string out_path {home + "\\Desktop\\Deliverables\\" + date + "-" + job_num};
-    //CreateDirectoryA(out_path.c_str(), NULL);
-    std::filesystem::rename(tmp_dir, out_path);
+    const std::string out_path {home + "\\Documents\\" + date.c_str() + "-" + job_num.c_str()};
+    std::cout << "Moving to working dir " << out_path << std::endl;
+
+    // Convert string to wchar_t
+    std::wstring tmp_dir_ws {std::wstring(tmp_dir.begin(), tmp_dir.end())};
+    std::wstring out_path_ws {std::wstring(out_path.begin(), out_path.end())};
+    const wchar_t* tmp_dir_wt {tmp_dir_ws.c_str()};
+    const wchar_t* out_path_wt {out_path_ws.c_str()};
+
+    _wrename(tmp_dir_wt, out_path_wt);
+    //std::filesystem::rename(tmp_dir, out_path);
 }

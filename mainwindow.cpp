@@ -51,8 +51,10 @@ void MainWindow::handle_cw_process_button() {
     std::cout << zip_path << std::endl;
     // Extract files to C:\Users\USERNAME\Downloads\_tmp
     if (zip_path != "FILENOTFOUND") {
-        ut.unzip_file(zip_path, job_id);
+        ut.unzip_file(zip_path);
     }
+
+    ut.move_extracted_files(job_id);  // Move files to working directory
 }
 
 MainWindow::~MainWindow()
