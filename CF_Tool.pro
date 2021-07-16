@@ -3,13 +3,12 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
-
+INCLUDEPATH += C:\gdalwin32-1.4.1\include
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dbf_editor.cpp \
     elzip.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -36,6 +35,7 @@ SOURCES += \
     minizip/src/unzip.c \
     minizip/src/zip.c \
     minizip/src/zutil.c \
+    shapeeditor.cpp \
     unzipper.cpp \
     utility_functions.cpp \
     zipper.cpp
@@ -63,6 +63,7 @@ HEADERS += \
     minizip/include/minizip/zip.h \
     minizip/include/minizip/zlib.h \
     minizip/include/minizip/zutil.h \
+    shapeeditor.h \
     tinydir.h \
     unzipper.hpp \
     utility_functions.h \
