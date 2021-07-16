@@ -17,5 +17,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    void handle_cw_process_button();
 };
 #endif // MAINWINDOW_H
