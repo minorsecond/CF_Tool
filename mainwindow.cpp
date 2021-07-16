@@ -34,9 +34,19 @@ void MainWindow::handle_cw_process_button() {
      * Handles actions when user presses the process button on the first tab (Create workspace).
      */
 
+    UtilityFunctions ut;
     const std::string job_id = ui->WC_JobIDInput->text().toStdString();
     const std::string city = ui->WC_CityInput->text().toStdString();
     const std::string state {ui->WC_StateInput->currentText().toStdString()};
+
+    const std::string home_path {ut.get_home_path()};
+
+    std::string zip_path {ut.find_zip_file(job_id)};
+
+    // Extract files to C:\Users\USERNAME\Downloads\_tmp
+    if (zip_path != "FILENOTFOUND") {
+        ut.unzip_file(zip_path, job_id);
+    }
 }
 
 MainWindow::~MainWindow()

@@ -14,6 +14,8 @@ public:
     void unzip_file(const std::string path, const std::string job_num);
     void zip_files(const std::string folder_path, const std::string job_num);
     std::string get_local_date();
+    std::string find_zip_file(const std::string job_number);
+    void move_extracted_files(const std::string job_num);
 };
 
 #endif // UTILITY_FUNCTIONS_H

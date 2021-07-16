@@ -150,3 +150,33 @@ std::string UtilityFunctions::get_local_date() {
 
     return output;
 }
+
+std::string UtilityFunctions::find_zip_file(const std::string job_number) {
+    /*
+     * Finds zip file in Downloads directory that contains job_number
+     * @param job_number: Job number to search for
+     */
+
+    const std::string download_path {get_home_path() + "\\Downloads\\"};
+    for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
+        std::string search_path = entry.path().string();
+        if (search_string_for_substring(search_path, job_number)) {
+            return search_path;
+        }
+    }
+
+    return "FILENOTFOUND";
+}
+
+void UtilityFunctions::move_extracted_files(const std::string job_num) {
+    /*
+     * Move all of the extracted shapefiles from _tmp into working directory
+     * @param job_num: Job ID. This will be used to create the working directory
+     */
+    const std::string home {get_home_path()};
+    const std::string tmp_dir {home + "\\Downloads\\tmp"};
+    const std::string date {get_local_date()};
+    const std::string out_path {home + "\\Desktop\\Deliverables\\" + date + "-" + job_num};
+    //CreateDirectoryA(out_path.c_str(), NULL);
+    std::filesystem::rename(tmp_dir, out_path);
+}
