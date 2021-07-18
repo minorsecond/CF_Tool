@@ -1,18 +1,18 @@
 #include "shapeeditor.h"
 
-ShapeEditor::ShapeEditor()
-{
-
-}
-
 OGRLayer* ShapeEditor::shapefile_reader(const std::string path) {
     /*
-     * Open a shapefile
-     * @param path: Path to shapefile
+     * Open a shapefile dbf
+     * @param path: Path to shapefile dbf
+     * @return layer: A layer object
      */
 
-    OGRRegisterAll();
-    OGRDataSource *poDS {OGRSFDriverRegistrar::Open(path.c_str(), FALSE)};
-    OGRLayer *layer {poDS->GetLayer(0)};
+    //OGRRegisterAll();
+    GDALDataset *poDataset;
+    GDALAllRegister();
+    poDataset = (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
+    OGRLayer *layer {poDataset->GetLayer()};
+    //OGRDataSource *poDS {OGRSFDriverRegistrar::Open(path.c_str(), FALSE)};
+    //OGRLayer *layer {poDS->GetLayer(0)};
     return layer;
 }
