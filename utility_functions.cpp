@@ -9,7 +9,7 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 
 std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     /*
@@ -198,7 +198,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
 
     try {
        std::filesystem::rename(tmp_dir, out_path);
-    }  catch (std::filesystem::__cxx11::filesystem_error) {
+    }  catch (std::filesystem::filesystem_error) {
         std::cout << out_path << " already exists" << std::endl;
     }
 }
