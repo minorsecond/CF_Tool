@@ -1,6 +1,14 @@
+/*
+ * Application for assisting Comsof work.
+ * This tool creates workspace directories (Desktop/Workpaces & Documents/State/City/JobID),
+ * Manipulates shapefile attribute tables to prepare them for Comsof, and
+ * archives output data to prepare it for submittal to CGIS.
+ */
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "utility_functions.h"
+#include "errorwindow.h"
 
 #include <iostream>
 
@@ -16,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Populate the state selection combo boxes
     const std::vector<QString> states {"Alabama", "Alaska", "Arizona", "Arkansas", "California",
-                                           "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+                                          "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
                                           "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
                                           "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
                                           "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
@@ -40,6 +48,7 @@ void MainWindow::handle_cw_process_button() {
      */
 
     UtilityFunctions ut;
+    ErrorWindow er;
     const std::string job_id = ui->WC_JobIDInput->text().toStdString();
     const std::string city = ui->WC_CityInput->text().toStdString();
     const std::string state {ui->WC_StateInput->currentText().toStdString()};
@@ -57,14 +66,18 @@ void MainWindow::handle_cw_process_button() {
             ut.build_working_dirs(job_id, city, state);
             ut.unzip_file(zip_path);
         } else {
-            std::cout << "Couldn't find zip file in downloads directory" << std::endl;
-            //TODO: error window
+            const std::string error_message {"Couldn't find zip file in downloads directory."};
+            std::cout << error_message << std::endl;
+            er.set_error_message(error_message);
+            er.exec();
         }
 
         ut.move_extracted_files(job_id, city, state);  // Move files to working directory
     } else {
-        std::cout << "Not all required fields populated" << std::endl;
-        //TODO: error window
+        const std::string error_message {"Not all required fields populated"};
+        std::cout << error_message << std::endl;
+        er.set_error_message(error_message);
+        er.exec();
     }
 }
 

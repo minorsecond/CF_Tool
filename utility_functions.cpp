@@ -9,7 +9,7 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 
 std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     /*
@@ -47,7 +47,7 @@ void UtilityFunctions::create_directories() {
      * @param username: The user's username. This detemrines where the directories are created.
      */
 
-    const std::string desktop_path {get_home_path() + "\\Desktop\\"};
+    const std::string desktop_path {get_home_path() + "\\\\OneDrive - Congruex\\Desktop\\"};
     const std::string workspace_path {desktop_path + "Workspaces"};
     const std::string deliverable_path {desktop_path + "Deliverables"};
 
@@ -198,7 +198,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
 
     try {
        std::filesystem::rename(tmp_dir, out_path);
-    }  catch (std::filesystem::__cxx11::filesystem_error) {
+    }  catch (std::filesystem::filesystem_error) {
         std::cout << out_path << " already exists" << std::endl;
     }
 }
