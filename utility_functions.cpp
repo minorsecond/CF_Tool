@@ -5,6 +5,7 @@
 #include <string>
 #include <chrono>
 
+#include <stdlib.h>
 #include <windows.h>
 #include <shlobj.h>
 #include <objbase.h>
@@ -111,16 +112,6 @@ void UtilityFunctions::process_downloaded_data(const std::string job_num) {
     }
 }
 
-void UtilityFunctions::zip_file(const std::string input_path, const std::string output_path) {
-    /*
-     * Zip the file located at input_path to the zip file at output_path
-     * @param input_path: The directory to zip up
-     * @param output_path: The location of the output zip file
-     */
-
-     elz::zipFolder(input_path, output_path);
-}
-
 void UtilityFunctions::unzip_file(const std::string path) {
     /*
      * Unzip the zip file located at path.
@@ -142,7 +133,7 @@ void UtilityFunctions::unzip_file(const std::string path) {
     std::filesystem::rename(path, naked_path);
 }
 
-void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num) {
+void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num, const std::string city, const std::string state) {
     /*
      * Compress files in directory into a zip file. Files will have timestamp in name,
      * in the format YYYY-MM-DD_JOBNUM.zip
@@ -151,9 +142,40 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
      */
 
     const std::string date {get_local_date()};
-    const std::string target {get_home_path() + "\\Desktop\\Deliverables\\" + date + "-" + job_num};
-    std::cout << "Compressing files in " << folder_path << " to " << target << std::endl;
-    elz::zipFolder(folder_path, target);
+    const std::string city_state_path {get_home_path() + "\\Desktop\\Deliverables\\" + state + "\\" + city + "\\"};
+    const std::string tmp_path {city_state_path + "\\tmp\\"};
+    const std::string const_base_path {tmp_path + date.c_str() + "-" + job_num.c_str()};
+    const std::string target {city_state_path + date.c_str() + "-" + job_num.c_str() + ".zip"};
+    const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
+    std::vector<std::string> deliverable_files {"OUT_AccessStructures",
+                                                "OUT_Closures",
+                                                "OUT_DistributionCables",
+                                                "OUT_DropCables",
+                                                "OUT_DropClusters",
+                                                "OUT_FeederCables"};
+
+    std::cout << "Scanning " << folder_path << " for job files" << std::endl;
+    create_directory_recursively(const_base_path_ws); // Temp directory to store needed files before zipping
+    for (const auto & job_dirs : std::filesystem::directory_iterator(folder_path)) {
+        if (search_string_for_substring(job_dirs.path().string(), "output")) {
+            for (const auto & file : std::filesystem::directory_iterator(job_dirs)) {
+                const std::string filename {file.path().filename().string()};
+                size_t lastindex {filename.find_last_of(".")};
+                std::string naked_filename {filename.substr(0, lastindex)};
+                if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
+                    const std::string out_path {const_base_path + "\\" + filename};
+                    try {
+                        std::filesystem::copy(file.path().string(), out_path);
+                    }  catch (std::filesystem::filesystem_error) {
+                        std::cout << "Output file probably already exists.";
+                    }
+                }
+            }
+        }
+    }
+
+    std::cout << "Compressing files in " << tmp_path << " to " << target << std::endl;
+    elz::zipFolder(tmp_path, target);
 }
 
 std::string UtilityFunctions::get_local_date() {
@@ -211,15 +233,11 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
 
     //_wrename(tmp_dir_wt, out_path_wt);
-    std::filesystem::rename(tmp_dir, out_path);
-
-    /*
     try {
        std::filesystem::rename(tmp_dir, out_path);
     }  catch (std::filesystem::filesystem_error) {
-        //std::cout << out_path << " already exists" << std::endl;
+        std::cout << out_path << " already exists" << std::endl;
     }
-    */
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {

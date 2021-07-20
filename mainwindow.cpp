@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Slots
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
     connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
+    connect(ui->DA_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_da_process_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -166,6 +167,8 @@ void MainWindow::handle_da_process_button() {
     const std::string city = ui->DA_CityInput->text().toStdString();
     const std::string state {ui->DA_StateInput->currentText().toStdString()};
     const std::string workspaces_path {ut.get_workspace_path(job_id)};
+
+    ut.zip_files(workspaces_path, job_id, city, state);
 }
 
 MainWindow::~MainWindow()
