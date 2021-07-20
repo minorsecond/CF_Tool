@@ -47,9 +47,12 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         in_layer->CreateField(&tmp_field_def);
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
+            std::string include_attr {feature->GetFieldAsString(field_idx)};
+            std::cout << include_attr << std::endl;
             feature->SetField("tmp", feature->GetFieldAsString(field_idx));
             in_layer->SetFeature(feature.release());
         }
+        std::cout << "Deleting include field at index " << field_idx << std::endl;
         in_layer->DeleteField(field_idx);
 
         // Add the uppercase field
@@ -61,17 +64,18 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
         // Populate new field
         for (OGRFeatureUniquePtr &feature : in_layer) {
-            feature->SetField(upper_name.c_str(), "tmp");
+            feature->SetField(upper_name.c_str(), feature->GetFieldAsString("tmp"));
             std::string streetname {};
             try {
-                streetname =uppercase_string(feature->GetFieldAsString("streetname"));
+                streetname = uppercase_string(feature->GetFieldAsString("street_nam"));
             }  catch (...) {
-                std::cout << "Error parsing streetname" << std::endl;
+                std::cout << "Error parsing streetname. Check streetname attribute. It should be street_nam" << std::endl;
             }
             feature->SetField("STREETNAME", "streetname");
             feature->SetField("PON_HOMES", 1);
             in_layer->SetFeature(feature.release());
         }
+        in_layer->DeleteField(find_field_index("tmp", in_layer));
     }
 }
 
@@ -158,13 +162,15 @@ unsigned ShapeEditor::find_field_index(const std::string field_name, OGRLayer *i
     unsigned field_idx {NULL};
     OGRFeatureDefn *lyr_def {in_layer->GetLayerDefn()};
     int field_count {lyr_def->GetFieldCount()};
+    std::cout << "Field count: " << field_count << std::endl;
     for (int idx {0}; idx < field_count; idx ++) {
         OGRFieldDefn field_def {lyr_def->GetFieldDefn(idx)};
-        std::string field_name {field_def.GetNameRef()};
-        if (field_name == field_name) {
+        std::string shp_name {field_def.GetNameRef()};
+        if (shp_name == field_name) {
             field_idx = idx;  // This is the field index that will be changed
         }
     }
+
     return field_idx;
 }
 
