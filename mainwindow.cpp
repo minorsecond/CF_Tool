@@ -98,6 +98,13 @@ void MainWindow::handle_ac_process_button() {
     // Handle processing of demand points
     const std::string job_number {ui->AC_JobIDEntry->text().toStdString()};
     const std::string gis_path {ut.find_gis_path(job_number)};
+
+    if (gis_path == "FILENOTFOUND") {
+        er.set_error_message("Error: could not find directory for job # " + job_number);
+        er.exec();
+        return;
+    }
+
     const std::string reproj_path {gis_path + "\\reprojected"};
     const std::string demand_points_path {reproj_path + "\\addresses.dbf"};
     const std::string access_points_path {reproj_path + "\\access_point.dbf"};
