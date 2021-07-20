@@ -170,10 +170,17 @@ void MainWindow::handle_da_process_button() {
      * Handles actions when user presses the process button on the third tab (Deliverable archiving)
      */
     UtilityFunctions ut;
+    ErrorWindow er;
     const std::string job_id = ui->DA_JobIdEntry->text().toStdString();
     const std::string city = ui->DA_CityInput->text().toStdString();
     const std::string state {ui->DA_StateInput->currentText().toStdString()};
     const std::string workspaces_path {ut.get_workspace_path(job_id)};
+
+    if (workspaces_path == "PATHNOTFOUND") {
+        er.set_error_message("Warning: could not find workspace path for job # " + job_id);
+        er.exec();
+        return;
+    }
 
     ut.zip_files(workspaces_path, job_id, city, state);
 }
