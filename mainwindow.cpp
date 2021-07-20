@@ -97,17 +97,20 @@ void MainWindow::handle_ac_process_button() {
     const std::string reproj_path {gis_path + "\\reprojected"};
     const std::string demand_points_path {reproj_path + "\\addresses.dbf"};
     const std::string access_points_path {reproj_path + "\\access_point.dbf"};
-    const std::string poles_path {reproj_path + "\\poles.dbf"};
+    const std::string poles_path {reproj_path + "\\pole.dbf"};
     const std::string aerials_path {reproj_path + "\\span_length.dbf"};
     const std::string fdt_path {reproj_path + "\\fdt_boundary.dbf"};
 
     std::vector<std::string> input_files {demand_points_path, access_points_path,
                                          poles_path, aerials_path, fdt_path};
+    size_t vector_counter {0};
     for (std::string path : input_files) {
         if (!ut.file_exists(path)) {
             er.set_error_message("Warning: could not find " + path);
-            path = "";
+            er.exec();
+            input_files.at(vector_counter) = "";
         }
+        vector_counter++;
     }
 
 
@@ -118,12 +121,14 @@ void MainWindow::handle_ac_process_button() {
         demand_points->SyncToDisk();
         delete demand_points;  // delete pointer
     }
-    /*
+
     if (input_files[1].size() > 0) {  // Access points
         OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
         ShapeEditor::process_access_points(access_points);
+        access_points->SyncToDisk();
+        delete access_points;
     }
-
+    /*
     if (input_files[2].size() > 0) {  // Poles
         OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
         ShapeEditor::process_poles(poles);

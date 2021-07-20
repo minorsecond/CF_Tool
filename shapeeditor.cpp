@@ -86,11 +86,9 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
      * @param in_layer: The layer to process
      */
 
-    OGRFieldDefn *type_defn {nullptr};
-    type_defn->SetName("TYPE");
-    type_defn->SetType(OFTString);
-    type_defn->SetWidth(254);
-    in_layer->CreateField(type_defn);
+    OGRFieldDefn type_defn("TYPE", OFTString);
+    type_defn.SetWidth(254);
+    in_layer->CreateField(&type_defn);
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
