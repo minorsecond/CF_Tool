@@ -136,11 +136,9 @@ void ShapeEditor::process_fdt_boundaries(OGRLayer *in_layer) {
      * @param in_layer: The layer to process
      */
 
-    OGRFieldDefn *type_defn {nullptr};
-    type_defn->SetName("LOCKED");
-    type_defn->SetType(OFTString);
-    type_defn->SetWidth(254);
-    in_layer->CreateField(type_defn);
+    OGRFieldDefn type_defn("LOCKED", OFTString);
+    type_defn.SetWidth(254);
+    in_layer->CreateField(&type_defn);
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         feature->SetField("LOCKED", "T");
