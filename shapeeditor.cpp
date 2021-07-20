@@ -39,6 +39,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
      * @param name_to_change: The attribute name to change to all caps
      * @param in_layer: An OGRLayer that contains the attribute name to change
      */
+    const std::string input_streetname_field_name {"street_nam"};
     unsigned field_idx {find_field_index(name_to_change, in_layer)};
     std::cout << "Index: " << field_idx << std::endl;
 
@@ -67,11 +68,11 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
             feature->SetField(upper_name.c_str(), feature->GetFieldAsString("tmp"));
             std::string streetname {};
             try {
-                streetname = uppercase_string(feature->GetFieldAsString("street_nam"));
+                streetname = uppercase_string(feature->GetFieldAsString(input_streetname_field_name.c_str()));
             }  catch (...) {
                 std::cout << "Error parsing streetname. Check streetname attribute. It should be street_nam" << std::endl;
             }
-            feature->SetField("STREETNAME", "streetname");
+            feature->SetField("STREETNAME", streetname.c_str());
             feature->SetField("PON_HOMES", 1);
             in_layer->SetFeature(feature.release());
         }

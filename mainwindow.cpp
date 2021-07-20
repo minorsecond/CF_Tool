@@ -115,7 +115,8 @@ void MainWindow::handle_ac_process_button() {
         OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
         ShapeEditor::create_demand_point_fields(demand_points);
         ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME
-        exit(1);
+        demand_points->SyncToDisk();
+        delete demand_points;  // delete pointer
     }
     /*
     if (input_files[1].size() > 0) {  // Access points
