@@ -9,6 +9,7 @@
 #include "ui_mainwindow.h"
 #include "utility_functions.h"
 #include "errorwindow.h"
+#include "shapeeditor.h"
 
 #include <iostream>
 
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Slots
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
+    connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -80,6 +82,75 @@ void MainWindow::handle_cw_process_button() {
         er.exec();
     }
 }
+
+void MainWindow::handle_ac_process_button() {
+    /*
+     * Handles actions when user presses the process button on the second tab (Attribute Creation)
+     */
+
+    UtilityFunctions ut;
+    ErrorWindow er;
+
+    // Handle processing of demand points
+    const std::string job_number {ui->AC_JobIDEntry->text().toStdString()};
+    const std::string gis_path {ut.find_gis_path(job_number)};
+    const std::string reproj_path {gis_path + "\\reprojected"};
+    const std::string demand_points_path {reproj_path + "\\addresses.dbf"};
+    const std::string access_points_path {reproj_path + "\\access_point.dbf"};
+    const std::string poles_path {reproj_path + "\\pole.dbf"};
+    const std::string aerials_path {reproj_path + "\\span_length.dbf"};
+    const std::string fdt_path {reproj_path + "\\fdt_boundary.dbf"};
+
+    std::vector<std::string> input_files {demand_points_path, access_points_path,
+                                         poles_path, aerials_path, fdt_path};
+    size_t vector_counter {0};
+    for (std::string path : input_files) {
+        if (!ut.file_exists(path)) {
+            er.set_error_message("Warning: could not find " + path);
+            er.exec();
+            input_files.at(vector_counter) = "";
+        }
+        vector_counter++;
+    }
+
+
+    if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
+        OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
+        ShapeEditor::create_demand_point_fields(demand_points);
+        ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME
+        demand_points->SyncToDisk();
+        delete demand_points;  // delete pointer
+    }
+
+    if (input_files[1].size() > 0) {  // Access points
+        OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
+        ShapeEditor::process_access_points(access_points);
+        access_points->SyncToDisk();
+        delete access_points;
+    }
+
+    if (input_files[2].size() > 0) {  // Poles
+        OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
+        ShapeEditor::process_poles(poles);
+        poles->SyncToDisk();
+        delete poles;
+    }
+
+    if (input_files[3].size() > 0) { // Aerials
+        OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
+        ShapeEditor::process_aerial_connections(aerials);
+        aerials->SyncToDisk();
+        delete aerials;
+    }
+
+    if (input_files[4].size() > 0) { // FDT Boundaries
+        OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
+        ShapeEditor::process_fdt_boundaries(fdt_boundary);
+        fdt_boundary->SyncToDisk();
+        delete fdt_boundary;
+    }
+}
+
 
 MainWindow::~MainWindow()
 {

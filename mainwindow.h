@@ -20,5 +20,6 @@ private:
 
 private slots:
     void handle_cw_process_button();
+    void handle_ac_process_button();
 };
 #endif // MAINWINDOW_H

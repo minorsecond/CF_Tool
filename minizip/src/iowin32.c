@@ -13,7 +13,7 @@
 
 #include <stdlib.h>
 
-#include "zlib.h"
+#include "zlib/zlib.h"
 #include "minizip/include/minizip/ioapi.h"
 #include "minizip/include/minizip/iowin32.h"
 

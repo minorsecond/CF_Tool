@@ -15,9 +15,11 @@ public:
     void zip_files(const std::string folder_path, const std::string job_num);
     std::string get_local_date();
     std::string find_zip_file(const std::string job_number);
+    std::string find_gis_path(const std::string job_number);
     void move_extracted_files(const std::string job_num, const std::string city, const std::string state);
     void create_directory_recursively(const std::wstring &directory);
     void build_working_dirs(const std::string job_num, const std::string city, const std::string state);
+    bool file_exists(const std::string &path);
 };
 
 #endif // UTILITY_FUNCTIONS_H

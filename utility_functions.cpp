@@ -9,7 +9,7 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
-#include <unistd.h>
+//#include <unistd.h>
 
 std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
     /*
@@ -47,12 +47,13 @@ void UtilityFunctions::create_directories() {
      * @param username: The user's username. This detemrines where the directories are created.
      */
 
-    const std::string desktop_path {get_home_path() + "\\\\OneDrive - Congruex\\Desktop\\"};
+    const std::string desktop_path {get_home_path() + "\\Desktop\\"};
     const std::string workspace_path {desktop_path + "Workspaces"};
     const std::string deliverable_path {desktop_path + "Deliverables"};
+    const std::string gis_path {get_home_path() + "\\Documents\\Comsof_Jobs"};
 
     std::cout << deliverable_path << std::endl;
-    const std::vector<std::string> paths {workspace_path, deliverable_path};
+    const std::vector<std::string> paths {workspace_path, deliverable_path, gis_path};
     for (const std::string &path : paths) {
         CreateDirectoryA(path.c_str(), NULL);
     }
@@ -172,7 +173,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
         if (search_string_for_substring(search_path, job_number)) {
-            return search_path;
+            return search_path;  //TODO: only find files with .zip in the name
         }
     }
 
@@ -198,7 +199,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
 
     try {
        std::filesystem::rename(tmp_dir, out_path);
-    }  catch (std::filesystem::__cxx11::filesystem_error) {
+    }  catch (std::filesystem::filesystem_error) {
         std::cout << out_path << " already exists" << std::endl;
     }
 }
@@ -251,8 +252,8 @@ void UtilityFunctions::build_working_dirs(const std::string job_num, const std::
 
     const std::string home {get_home_path()};
     const std::string date {get_local_date()};
-    const std::string gis_path {home + "\\Documents\\" + state + "\\" + city};
-    const std::string work_path {home + "\\OneDrive - Congruex\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
+    const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
+    const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
                 date.c_str() + "-" + job_num.c_str()};
 
     std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
@@ -260,4 +261,46 @@ void UtilityFunctions::build_working_dirs(const std::string job_num, const std::
 
     create_directory_recursively(gis_path_ws);
     create_directory_recursively(work_path_ws);
+}
+
+std::string UtilityFunctions::find_gis_path(const std::string job_number) {
+    /*
+     * Finds path to GIS directory inside documents directory
+     * @param job_number: The job number to search for
+     * @return: The path as a string
+     */
+
+    /*
+     * Finds zip file in Downloads directory that contains job_number
+     * @param job_number: Job number to search for
+     */
+
+    const std::string download_path {get_home_path() + "\\Documents\\"};
+    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
+        if (search_string_for_substring(entry.path().string(), "Comsof_Jobs")) {
+            for (const auto & state : std::filesystem::directory_iterator(entry.path())) {  // Comsof Jobs level
+                for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // City level
+                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {
+                        std::cout << "Path: " << job.path().string() << std::endl;
+                        std::string search_path = job.path().string();
+                        if (search_string_for_substring(search_path, job_number)) {
+                            return search_path;  //TODO: only find files with .zip in the name
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return "FILENOTFOUND";
+}
+
+bool UtilityFunctions::file_exists(const std::string &path) {
+    /*
+     * Check if file exists
+     * @param path: Path of file to check for
+     */
+    bool exists {false};
+    std::filesystem::exists(path) ? exists = true : exists = false;
+    return exists;
 }
