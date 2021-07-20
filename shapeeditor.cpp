@@ -1,6 +1,8 @@
 #include "shapeeditor.h"
 #include <iostream>
 
+ShapeEditor::ShapeEditor() {};
+
 OGRLayer* ShapeEditor::shapefile_reader(const std::string path) {
     /*
      * Open a shapefile dbf
@@ -8,13 +10,13 @@ OGRLayer* ShapeEditor::shapefile_reader(const std::string path) {
      * @return layer: A layer object
      */
 
-    //OGRRegisterAll();
     GDALDataset *poDataset;
-    //GDALAllRegister();
-    poDataset = (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
+    std::cout << "Reading layer from shapefile " + path << std::endl;
+    GDALAllRegister();
+   // poDataset = (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
+    poDataset = (GDALDataset *) GDALOpenEx(path.c_str(), GDAL_OF_ALL | GDAL_OF_UPDATE, NULL, NULL, NULL);
     OGRLayer *layer {poDataset->GetLayer(0)};
-    //OGRDataSource *poDS {OGRSFDriverRegistrar::Open(path.c_str(), FALSE)};
-    //OGRLayer *layer {poDS->GetLayer(0)};
+    //OGRLayer *layer {nullptr};
     return layer;
 }
 
@@ -23,14 +25,10 @@ OGRLayer* ShapeEditor::create_demand_point_fields(OGRLayer *dp_layer) {
      * Add PON_HOMES and STREETNAME fields to demand points layer
      * @param dp_layer: The demand points layer to add fields to
      */
-    OGRFieldDefn *pon_homes_field {nullptr};
-    OGRFieldDefn *streetname_field {nullptr};
-    pon_homes_field->SetName("PON_HOMES");
-    pon_homes_field->SetType(OFTInteger);
-    streetname_field->SetName("STREETNAME");
-    streetname_field->SetType(OFTString);
-    dp_layer->CreateField(pon_homes_field);
-    dp_layer->CreateField(streetname_field);
+    OGRFieldDefn pon_homes_field("PON_HOMES", OFTInteger);
+    OGRFieldDefn streetname_field("STREETNAME", OFTString);
+    dp_layer->CreateField(&pon_homes_field);
+    dp_layer->CreateField(&streetname_field);
 
     return dp_layer;
 }
@@ -42,12 +40,11 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
      * @param in_layer: An OGRLayer that contains the attribute name to change
      */
     unsigned field_idx {find_field_index(name_to_change, in_layer)};
+    std::cout << "Index: " << field_idx << std::endl;
 
     if (field_idx != NULL) {
-        OGRFieldDefn *tmp_field_def {nullptr};
-        tmp_field_def->SetName("tmp");
-        tmp_field_def->SetType(OFTString);  // Make this dynamic to add ability to rename multiple fields
-        in_layer->CreateField(tmp_field_def);
+        OGRFieldDefn tmp_field_def("tmp", OFTString);
+        in_layer->CreateField(&tmp_field_def);
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
             feature->SetField("tmp", feature->GetFieldAsString(field_idx));
@@ -57,10 +54,8 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
         // Add the uppercase field
         std::string upper_name {uppercase_string(name_to_change)};
-        OGRFieldDefn *upper_name_field {nullptr};
-        upper_name_field->SetName(upper_name.c_str());
-        upper_name_field->SetType(OFTString);
-        in_layer->CreateField(upper_name_field);
+        OGRFieldDefn upper_name_field(upper_name.c_str(), OFTString);
+        in_layer->CreateField(&upper_name_field);
 
         in_layer->ResetReading();  // Restart reading layer at beginning
 
@@ -163,7 +158,7 @@ unsigned ShapeEditor::find_field_index(const std::string field_name, OGRLayer *i
     unsigned field_idx {NULL};
     OGRFeatureDefn *lyr_def {in_layer->GetLayerDefn()};
     int field_count {lyr_def->GetFieldCount()};
-    for (int idx {0}; idx <= field_count; idx ++) {
+    for (int idx {0}; idx < field_count; idx ++) {
         OGRFieldDefn field_def {lyr_def->GetFieldDefn(idx)};
         std::string field_name {field_def.GetNameRef()};
         if (field_name == field_name) {
