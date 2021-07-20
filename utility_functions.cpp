@@ -27,12 +27,17 @@ std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
 
     // Search for the workspace directory that contains the job_num. The second for loop
     // makes sure that the input, output, or saved states subdirectory isn't selected.
-    for (const auto & entry : std::filesystem::directory_iterator(workspace_root)) {
-        std::string search_path = entry.path().string();  // Convert  fs path to string
-        if (search_string_for_substring(search_path, job_num)) {
-            for (const std::string &bad_dir : invalid_directories) {
-                if (!search_string_for_substring(search_path, bad_dir)) {
-                    return search_path;
+    for (const auto & state : std::filesystem::directory_iterator(workspace_root)) { // Workspaces level
+        for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // States level
+            for (const auto & job_id : std::filesystem::directory_iterator(city.path())) {
+                std::string search_path = job_id.path().string();  // Convert  fs path to string
+                if (search_string_for_substring(search_path, job_num)) {
+                    for (const std::string &bad_dir : invalid_directories) {
+                        if (!search_string_for_substring(search_path, bad_dir)) {
+                            std::cout << "Found workspace path: " << search_path << std::endl;
+                            return search_path;
+                        }
+                    }
                 }
             }
         }
@@ -104,6 +109,16 @@ void UtilityFunctions::process_downloaded_data(const std::string job_num) {
             unzip_file(search_path);
         }
     }
+}
+
+void UtilityFunctions::zip_file(const std::string input_path, const std::string output_path) {
+    /*
+     * Zip the file located at input_path to the zip file at output_path
+     * @param input_path: The directory to zip up
+     * @param output_path: The location of the output zip file
+     */
+
+     elz::zipFolder(input_path, output_path);
 }
 
 void UtilityFunctions::unzip_file(const std::string path) {
@@ -188,7 +203,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
     const std::string date {get_local_date()};
-    const std::string dir_structure {home + "\\Documents\\" + state + "\\" + city};
+    const std::string dir_structure {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
     const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
@@ -196,12 +211,15 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
 
     //_wrename(tmp_dir_wt, out_path_wt);
+    std::filesystem::rename(tmp_dir, out_path);
 
+    /*
     try {
        std::filesystem::rename(tmp_dir, out_path);
     }  catch (std::filesystem::filesystem_error) {
-        std::cout << out_path << " already exists" << std::endl;
+        //std::cout << out_path << " already exists" << std::endl;
     }
+    */
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
