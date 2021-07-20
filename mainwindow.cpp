@@ -135,12 +135,14 @@ void MainWindow::handle_ac_process_button() {
         poles->SyncToDisk();
         delete poles;
     }
-    /*
+
     if (input_files[3].size() > 0) { // Aerials
         OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
         ShapeEditor::process_aerial_connections(aerials);
+        aerials->SyncToDisk();
+        delete aerials;
     }
-
+    /*
     if (input_files[4].size() > 0) { // FDT Boundaries
         OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
         ShapeEditor::process_fdt_boundaries(fdt_boundary);
