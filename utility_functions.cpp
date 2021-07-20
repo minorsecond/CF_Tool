@@ -50,9 +50,10 @@ void UtilityFunctions::create_directories() {
     const std::string desktop_path {get_home_path() + "\\Desktop\\"};
     const std::string workspace_path {desktop_path + "Workspaces"};
     const std::string deliverable_path {desktop_path + "Deliverables"};
+    const std::string gis_path {get_home_path() + "\\Documents\\Comsof_Jobs"};
 
     std::cout << deliverable_path << std::endl;
-    const std::vector<std::string> paths {workspace_path, deliverable_path};
+    const std::vector<std::string> paths {workspace_path, deliverable_path, gis_path};
     for (const std::string &path : paths) {
         CreateDirectoryA(path.c_str(), NULL);
     }
@@ -251,8 +252,8 @@ void UtilityFunctions::build_working_dirs(const std::string job_num, const std::
 
     const std::string home {get_home_path()};
     const std::string date {get_local_date()};
-    const std::string gis_path {home + "\\Documents\\" + state + "\\" + city};
-    const std::string work_path {home + "\\OneDrive - Congruex\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
+    const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
+    const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
                 date.c_str() + "-" + job_num.c_str()};
 
     std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
