@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Slots
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
     connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
+    connect(ui->DA_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_da_process_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -54,8 +55,10 @@ void MainWindow::handle_cw_process_button() {
     const std::string job_id = ui->WC_JobIDInput->text().toStdString();
     const std::string city = ui->WC_CityInput->text().toStdString();
     const std::string state {ui->WC_StateInput->currentText().toStdString()};
-
     const std::string home_path {ut.get_home_path()};
+    const std::string date {ut.get_local_date()};
+    const std::string workspace_path {home_path + "\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str()};
+    const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
     std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
     std::string zip_path {ut.find_zip_file(job_id)};
@@ -75,6 +78,7 @@ void MainWindow::handle_cw_process_button() {
         }
 
         ut.move_extracted_files(job_id, city, state);  // Move files to working directory
+        ut.create_directory_recursively(workspace_path_ws);
     } else {
         const std::string error_message {"Not all required fields populated"};
         std::cout << error_message << std::endl;
@@ -103,6 +107,9 @@ void MainWindow::handle_ac_process_button() {
 
     std::vector<std::string> input_files {demand_points_path, access_points_path,
                                          poles_path, aerials_path, fdt_path};
+
+    // Check if input file exists. If it doesn't, set the path string to "". This will later be checked to
+    // ensure that GDAL doesn't attempt to load a nonexisting file.
     size_t vector_counter {0};
     for (std::string path : input_files) {
         if (!ut.file_exists(path)) {
@@ -151,6 +158,18 @@ void MainWindow::handle_ac_process_button() {
     }
 }
 
+void MainWindow::handle_da_process_button() {
+    /*
+     * Handles actions when user presses the process button on the third tab (Deliverable archiving)
+     */
+    UtilityFunctions ut;
+    const std::string job_id = ui->DA_JobIdEntry->text().toStdString();
+    const std::string city = ui->DA_CityInput->text().toStdString();
+    const std::string state {ui->DA_StateInput->currentText().toStdString()};
+    const std::string workspaces_path {ut.get_workspace_path(job_id)};
+
+    ut.zip_files(workspaces_path, job_id, city, state);
+}
 
 MainWindow::~MainWindow()
 {
