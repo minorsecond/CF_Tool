@@ -128,12 +128,14 @@ void MainWindow::handle_ac_process_button() {
         access_points->SyncToDisk();
         delete access_points;
     }
-    /*
+
     if (input_files[2].size() > 0) {  // Poles
         OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
         ShapeEditor::process_poles(poles);
+        poles->SyncToDisk();
+        delete poles;
     }
-
+    /*
     if (input_files[3].size() > 0) { // Aerials
         OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
         ShapeEditor::process_aerial_connections(aerials);

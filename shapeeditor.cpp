@@ -104,11 +104,9 @@ void ShapeEditor::process_poles(OGRLayer *in_layer) {
      * @param in_layer: The layer to process
      */
 
-    OGRFieldDefn *type_defn {nullptr};
-    type_defn->SetName("EXISTING");
-    type_defn->SetType(OFTString);
-    type_defn->SetWidth(254);
-    in_layer->CreateField(type_defn);
+    OGRFieldDefn type_defn("EXISTING", OFTString);
+    type_defn.SetWidth(254);
+    in_layer->CreateField(&type_defn);
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         feature->SetField("EXISTING", "T");
