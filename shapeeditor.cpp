@@ -46,18 +46,18 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     std::cout << "Index: " << field_idx << std::endl;
 
     if (field_idx == -1) {
-        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer.");
+        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Skipping processing.");
         er.exec();
         return;
     }
 
     if (find_field_index(input_streetname_field_name, in_layer) == -1) {
-        er.set_error_message("Error: could not find " + input_streetname_field_name + " attribute in demand points layer.");
+        er.set_error_message("Error: could not find " + input_streetname_field_name + " attribute in demand points layer. Skipping processing.");
         er.exec();
         return;
     }
 
-    if (field_idx != NULL) {
+    if (field_idx != -1) {
         OGRFieldDefn tmp_field_def("tmp", OFTString);
         in_layer->CreateField(&tmp_field_def);
 
