@@ -163,6 +163,19 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>mainTab</tabstop>
+  <tabstop>WC_JobIDInput</tabstop>
+  <tabstop>WC_CityInput</tabstop>
+  <tabstop>WC_StateInput</tabstop>
+  <tabstop>WC_ProcuessButton</tabstop>
+  <tabstop>AC_JobIDEntry</tabstop>
+  <tabstop>AC_ProcessButton</tabstop>
+  <tabstop>DA_JobIdEntry</tabstop>
+  <tabstop>DA_CityInput</tabstop>
+  <tabstop>DA_StateInput</tabstop>
+  <tabstop>DA_ProcessButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
