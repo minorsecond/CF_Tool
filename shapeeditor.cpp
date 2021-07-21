@@ -46,7 +46,13 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     std::cout << "Index: " << field_idx << std::endl;
 
     if (field_idx == -1) {
-        er.set_error_message("Warning: could not find " + name_to_change + " in demand points layer.");
+        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer.");
+        er.exec();
+        return;
+    }
+
+    if (find_field_index(input_streetname_field_name, in_layer) == -1) {
+        er.set_error_message("Error: could not find " + input_streetname_field_name + " attribute in demand points layer.");
         er.exec();
         return;
     }
@@ -78,7 +84,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
             try {
                 streetname = uppercase_string(feature->GetFieldAsString(input_streetname_field_name.c_str()));
             }  catch (...) {
-                std::cout << "Error parsing streetname. Check streetname attribute. It should be street_nam" << std::endl;
+                std::cout << "Error parsing streetname. Check streetname attribute. It should be " << input_streetname_field_name << std::endl;
             }
             feature->SetField("STREETNAME", streetname.c_str());
             feature->SetField("PON_HOMES", 1);
@@ -102,7 +108,7 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
     in_layer->CreateField(&type_defn);
 
     if (find_field_index("structur_1", in_layer) == -1) {
-        er.set_error_message("Error: Could not find structur_1 attribute.");
+        er.set_error_message("Error: Could not find structur_1 attribute in access_points layer.");
         er.exec();
         return;
     }
