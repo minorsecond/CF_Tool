@@ -177,6 +177,7 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
 
     std::cout << "Compressing files in " << tmp_path << " to " << target << std::endl;
     elz::zipFolder(tmp_path, target);
+    std::filesystem::remove_all(tmp_path);
 }
 
 std::string UtilityFunctions::get_local_date() {
