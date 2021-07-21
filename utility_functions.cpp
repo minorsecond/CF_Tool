@@ -144,8 +144,9 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
 
     const std::string date {get_local_date()};
     const std::string city_state_path {get_home_path() + "\\Desktop\\Deliverables\\" + state + "\\" + city + "\\"};
-    const std::string tmp_path {city_state_path + "\\tmp\\"};
-    const std::string const_base_path {tmp_path + date.c_str() + "-" + job_num.c_str()};
+    const std::string tmp_path {city_state_path + "\\tmp"};
+    //const std::string const_base_path {tmp_path + date.c_str() + "-" + job_num.c_str()};  // This is causing a weird duplicate file to appear
+    const std::string const_base_path {tmp_path};
     const std::string target {city_state_path + date.c_str() + "-" + job_num.c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
     std::vector<std::string> deliverable_files {"OUT_AccessStructures",
