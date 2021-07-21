@@ -63,8 +63,13 @@ void MainWindow::handle_cw_process_button() {
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
     std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
-    std::string zip_path {ut.find_zip_file(job_id)};
+    if (home_path == "PATHNOTFOUND") {  // Something bad happened
+        er.set_error_message("Couldn't detect your home path. Contact developer.");
+        er.exec();
+        return;
+    }
 
+    std::string zip_path {ut.find_zip_file(job_id)};
     std::cout << zip_path << std::endl;
 
     if (!job_id.empty() && !city.empty() && !state.empty()) {

@@ -1,4 +1,5 @@
 #include "shapeeditor.h"
+#include "errorwindow.h"
 #include <iostream>
 
 ShapeEditor::ShapeEditor() {};
@@ -39,11 +40,24 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
      * @param name_to_change: The attribute name to change to all caps
      * @param in_layer: An OGRLayer that contains the attribute name to change
      */
+    ErrorWindow er;
     const std::string input_streetname_field_name {"street_nam"};
-    unsigned field_idx {find_field_index(name_to_change, in_layer)};
+    int field_idx {find_field_index(name_to_change, in_layer)};
     std::cout << "Index: " << field_idx << std::endl;
 
-    if (field_idx != NULL) {
+    if (field_idx == -1) {
+        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Skipping processing.");
+        er.exec();
+        return;
+    }
+
+    if (find_field_index(input_streetname_field_name, in_layer) == -1) {
+        er.set_error_message("Error: could not find " + input_streetname_field_name + " attribute in demand points layer. Skipping processing.");
+        er.exec();
+        return;
+    }
+
+    if (field_idx != -1) {
         OGRFieldDefn tmp_field_def("tmp", OFTString);
         in_layer->CreateField(&tmp_field_def);
 
@@ -70,13 +84,16 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
             try {
                 streetname = uppercase_string(feature->GetFieldAsString(input_streetname_field_name.c_str()));
             }  catch (...) {
-                std::cout << "Error parsing streetname. Check streetname attribute. It should be street_nam" << std::endl;
+                std::cout << "Error parsing streetname. Check streetname attribute. It should be " << input_streetname_field_name << std::endl;
             }
             feature->SetField("STREETNAME", streetname.c_str());
             feature->SetField("PON_HOMES", 1);
             in_layer->SetFeature(feature.release());
         }
-        in_layer->DeleteField(find_field_index("tmp", in_layer));
+        int tmp_index {find_field_index("tmp", in_layer)};
+        if (tmp_index != -1) {  // Just in case we can't find the tmp attribute
+            in_layer->DeleteField(find_field_index("tmp", in_layer));
+        }
     }
 }
 
@@ -85,10 +102,16 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
      * Process access points
      * @param in_layer: The layer to process
      */
-
+    ErrorWindow er;
     OGRFieldDefn type_defn("TYPE", OFTString);
     type_defn.SetWidth(254);
     in_layer->CreateField(&type_defn);
+
+    if (find_field_index("structur_1", in_layer) == -1) {
+        er.set_error_message("Error: Could not find structur_1 attribute in access_points layer.");
+        er.exec();
+        return;
+    }
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
@@ -146,13 +169,14 @@ void ShapeEditor::process_fdt_boundaries(OGRLayer *in_layer) {
     }
 }
 
-unsigned ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_layer) {
+int ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_layer) {
     /*
      * Find the index of field
      * @param in_layer: The layer to search
      * @param field_name: Field to search for
      */
-    unsigned field_idx {NULL};
+    int field_idx {NULL};
+    bool field_found {false};
     OGRFeatureDefn *lyr_def {in_layer->GetLayerDefn()};
     int field_count {lyr_def->GetFieldCount()};
     std::cout << "Field count: " << field_count << std::endl;
@@ -161,9 +185,13 @@ unsigned ShapeEditor::find_field_index(const std::string field_name, OGRLayer *i
         std::string shp_name {field_def.GetNameRef()};
         if (shp_name == field_name) {
             field_idx = idx;  // This is the field index that will be changed
+            field_found = true;
         }
     }
 
+    if (field_found == false) {
+        return -1;
+    }
     return field_idx;
 }
 

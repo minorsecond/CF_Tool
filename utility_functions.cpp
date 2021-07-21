@@ -1,5 +1,6 @@
 #include "utility_functions.h"
 #include "elzip.hpp"
+#include "errorwindow.h"
 
 #include <filesystem>
 #include <string>
@@ -222,6 +223,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
      * Move all of the extracted shapefiles from _tmp into working directory
      * @param job_num: Job ID. This will be used to create the working directory
      */
+    ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
     const std::string date {get_local_date()};
@@ -237,6 +239,8 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     try {
        std::filesystem::rename(tmp_dir, out_path);
     }  catch (std::filesystem::filesystem_error) {
+        er.set_error_message("Error: path already exists: " + out_path);
+        er.exec();
         std::cout << out_path << " already exists" << std::endl;
     }
 
