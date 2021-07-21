@@ -46,15 +46,8 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     std::cout << "Index: " << field_idx << std::endl;
 
     if (field_idx == -1) {
-        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Skipping processing.");
+        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Defaulting to True.");
         er.exec();
-        return;
-    }
-
-    if (find_field_index(input_streetname_field_name, in_layer) == -1) {
-        er.set_error_message("Error: could not find " + input_streetname_field_name + " attribute in demand points layer. Skipping processing.");
-        er.exec();
-        return;
     }
 
     if (field_idx != -1) {
@@ -69,27 +62,48 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         }
         std::cout << "Deleting include field at index " << field_idx << std::endl;
         in_layer->DeleteField(field_idx);
+    }
 
-        // Add the uppercase field
-        std::string upper_name {uppercase_string(name_to_change)};
-        OGRFieldDefn upper_name_field(upper_name.c_str(), OFTString);
-        in_layer->CreateField(&upper_name_field);
-
-        in_layer->ResetReading();  // Restart reading layer at beginning
-
-        // Populate new field
-        for (OGRFeatureUniquePtr &feature : in_layer) {
-            feature->SetField(upper_name.c_str(), feature->GetFieldAsString("tmp"));
-            std::string streetname {};
-            try {
-                streetname = uppercase_string(feature->GetFieldAsString(input_streetname_field_name.c_str()));
-            }  catch (...) {
-                std::cout << "Error parsing streetname. Check streetname attribute. It should be " << input_streetname_field_name << std::endl;
-            }
-            feature->SetField("STREETNAME", streetname.c_str());
-            feature->SetField("PON_HOMES", 1);
-            in_layer->SetFeature(feature.release());
+    // Find street name field
+    int streetname_idx {find_field_index("street_nam", in_layer)};
+    if (streetname_idx == -1) {
+        streetname_idx = find_field_index("street", in_layer);
+        if (streetname_idx == -1) {
+            er.set_error_message("Warning: could not find streetname field");
+            er.exec();
         }
+    }
+
+    // Add the uppercase field
+    std::string upper_name {uppercase_string(name_to_change)};
+    OGRFieldDefn upper_name_field(upper_name.c_str(), OFTString);
+    in_layer->CreateField(&upper_name_field);
+
+    in_layer->ResetReading();  // Restart reading layer at beginning
+    std::string tmp_value {};
+
+    // Populate new field
+    for (OGRFeatureUniquePtr &feature : in_layer) {
+        if (field_idx != -1) {
+            tmp_value = feature->GetFieldAsString("tmp");
+        } else {
+            tmp_value = "T";
+        }
+        feature->SetField(upper_name.c_str(), tmp_value.c_str());
+
+        std::string streetname {};
+        if (streetname_idx != -1) {
+            streetname = uppercase_string(feature->GetFieldAsString(streetname_idx));
+        } else {
+            streetname = "UNKNOWN";
+        }
+
+        feature->SetField("STREETNAME", streetname.c_str());
+        feature->SetField("PON_HOMES", 1);
+        in_layer->SetFeature(feature.release());
+    }
+
+    if (field_idx != -1) {
         int tmp_index {find_field_index("tmp", in_layer)};
         if (tmp_index != -1) {  // Just in case we can't find the tmp attribute
             in_layer->DeleteField(find_field_index("tmp", in_layer));
