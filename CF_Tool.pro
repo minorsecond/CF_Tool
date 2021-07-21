@@ -3,6 +3,7 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core
 
 CONFIG += c++17
+CONFIG += static
 QMAKE_CXXFLAGS += -static
 QMAKE_LFLAGS_WINDOWS += -static
 LIBS += -LC:\msys64\mingw64\lib -llibgdal
