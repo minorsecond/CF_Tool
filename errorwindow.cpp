@@ -6,6 +6,8 @@ ErrorWindow::ErrorWindow(QWidget *parent) :
     ui(new Ui::ErrorWindow)
 {
     ui->setupUi(this);
+    this->setFixedHeight(this->height());
+    this->setFixedWidth(this->width());
 
     // Close slot
     QObject::connect(ui->OKButton, SIGNAL(clicked()), this, SLOT(exitSlot()));
