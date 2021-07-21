@@ -227,10 +227,11 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     const std::string date {get_local_date()};
     const std::string dir_structure {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
     const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
+    const std::string reproj_path {out_path + "\\reprojected"};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
     // Convert string to ws
-    std::wstring dir_structure_ws {std::wstring(dir_structure.begin(), dir_structure.end())};
+    std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
 
     //_wrename(tmp_dir_wt, out_path_wt);
     try {
@@ -238,6 +239,8 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     }  catch (std::filesystem::filesystem_error) {
         std::cout << out_path << " already exists" << std::endl;
     }
+
+    create_directory_recursively(reproj_path_ws);
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
