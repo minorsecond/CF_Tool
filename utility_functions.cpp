@@ -243,14 +243,8 @@ void UtilityFunctions::build_working_dirs(Job jobinfo) {
      * @param job_num: The job number to be used in directory names
      */
 
-    //const std::string home {get_home_path()};
-    //const std::string date {get_local_date()};
-    //const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
-    //const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
-    //            date.c_str() + "-" + job_num.c_str()};
-
     const std::string location_path {jobinfo.get_location_path()};
-    const std::string work_path {jobinfo.get_workspace_path()};
+    const std::string work_path {jobinfo.new_workspace_path()};
 
     std::wstring location_path_ws {std::wstring(location_path.begin(), location_path.end())};
     std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};

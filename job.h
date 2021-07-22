@@ -13,6 +13,7 @@ public:
     std::string get_location_path();
     std::string new_gis_path();
     std::string find_gis_path();
+    std::string new_workspace_path();
     std::string get_workspace_path();
     std::string get_deliverable_path();
 };

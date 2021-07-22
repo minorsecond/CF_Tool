@@ -61,7 +61,7 @@ void MainWindow::handle_cw_process_button() {
     jobinfo.state = ui->WC_StateInput->currentText().toStdString();
 
     const std::string home_path {ut.get_home_path()};
-    const std::string workspace_path {jobinfo.get_workspace_path()};
+    const std::string workspace_path {jobinfo.new_workspace_path()};
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
 
     if (home_path == "PATHNOTFOUND") {  // Something bad happened

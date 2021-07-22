@@ -22,14 +22,30 @@ std::string Job::new_gis_path() {
     return gis_path;
 }
 
+std::string Job::new_workspace_path() {
+    /*
+     * Generate new workspace path
+     */
+
+    UtilityFunctions ut;
+    const std::string date {ut.get_local_date()};
+    return ut.get_home_path() + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str();
+}
+
 std::string Job::get_workspace_path() {
     /*
      * Gets the Comsof workspace path
      */
     UtilityFunctions ut;
-    const std::string home_path {ut.get_home_path()};
-    const std::string date {ut.get_local_date()};
-    return home_path + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str();
+    const std::string workspace_base {ut.get_home_path() + "\\Desktop\\Workspaces\\" + state + "\\" + city};
+
+    for (const auto & entry : std::filesystem::directory_iterator(workspace_base)) { // Documents path level
+        if (ut.search_string_for_substring(entry.path().string(), job_id)) {
+            return entry.path().string();
+        }
+    }
+
+    return "PATHNOTFOUND";
 }
 
 std::string Job::get_location_path() {
