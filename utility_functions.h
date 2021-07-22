@@ -13,7 +13,7 @@ public:
     bool search_string_for_substring(const std::string a, const std::string b);
     void process_downloaded_data(const std::string job_num);
     void unzip_file(const std::string path);
-    void zip_files(const std::string folder_path, const std::string job_num, const std::string city, const std::string state);
+    void zip_files(Job jobinfo);
     std::string get_local_date();
     std::string find_zip_file(const std::string job_number);
     std::string find_gis_path(const std::string job_number);

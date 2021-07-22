@@ -29,7 +29,7 @@ std::string Job::get_workspace_path() {
     UtilityFunctions ut;
     const std::string home_path {ut.get_home_path()};
     const std::string date {ut.get_local_date()};
-    return home_path + "\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_number.c_str();
+    return home_path + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_number.c_str();
 }
 
 std::string Job::get_location_path() {
@@ -71,4 +71,13 @@ std::string Job::find_gis_path() {
     }
 
     return "FILENOTFOUND";
+}
+
+std::string Job::get_deliverable_path() {
+    /*
+     * Get path to deliverable
+     */
+
+    UtilityFunctions ut;
+    return ut.get_home_path() + "\\Desktop\\Deliverables\\" + state + "\\" + city;
 }

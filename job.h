@@ -14,6 +14,7 @@ public:
     std::string new_gis_path();
     std::string find_gis_path();
     std::string get_workspace_path();
+    std::string get_deliverable_path();
 };
 
 #endif // JOB_H

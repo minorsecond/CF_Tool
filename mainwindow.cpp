@@ -12,6 +12,7 @@
 #include "shapeeditor.h"
 
 #include <iostream>
+#include <filesystem>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -184,18 +185,19 @@ void MainWindow::handle_da_process_button() {
      */
     UtilityFunctions ut;
     ErrorWindow er;
-    const std::string job_id = ui->DA_JobIdEntry->text().toStdString();
-    const std::string city = ui->DA_CityInput->text().toStdString();
-    const std::string state {ui->DA_StateInput->currentText().toStdString()};
-    const std::string workspaces_path {ut.get_workspace_path(job_id)};
+    Job jobinfo;
 
-    if (workspaces_path == "PATHNOTFOUND") {
-        er.set_error_message("Warning: could not find workspace path for job # " + job_id);
+    jobinfo.job_number = ui->DA_JobIdEntry->text().toStdString();
+    jobinfo.city = ui->DA_CityInput->text().toStdString();
+    jobinfo.state = ui->DA_StateInput->currentText().toStdString();
+
+    if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
+        er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_number);
         er.exec();
         return;
     }
 
-    ut.zip_files(workspaces_path, job_id, city, state);
+    ut.zip_files(jobinfo);
 }
 
 MainWindow::~MainWindow()

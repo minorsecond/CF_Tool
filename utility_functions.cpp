@@ -134,7 +134,7 @@ void UtilityFunctions::unzip_file(const std::string path) {
     std::filesystem::rename(path, naked_path);
 }
 
-void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::zip_files(Job jobinfo) {
     /*
      * Compress files in directory into a zip file. Files will have timestamp in name,
      * in the format YYYY-MM-DD_JOBNUM.zip
@@ -143,10 +143,10 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
      */
 
     const std::string date {get_local_date()};
-    const std::string city_state_path {get_home_path() + "\\Desktop\\Deliverables\\" + state + "\\" + city + "\\"};
+    const std::string city_state_path {jobinfo.get_deliverable_path()};
     const std::string tmp_path {city_state_path + "\\tmp"};
     const std::string const_base_path {tmp_path};
-    const std::string target {city_state_path + date.c_str() + "-" + job_num.c_str() + ".zip"};
+    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.job_number.c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
     std::vector<std::string> deliverable_files {"OUT_AccessStructures",
                                                 "OUT_Closures",
@@ -155,17 +155,18 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
                                                 "OUT_DropClusters",
                                                 "OUT_FeederCables"};
 
-    std::cout << "Scanning " << folder_path << " for job files" << std::endl;
+    std::cout << "Scanning " << jobinfo.get_workspace_path() << " for job files" << std::endl;
     create_directory_recursively(const_base_path_ws); // Temp directory to store needed files before zipping
-    for (const auto & job_dirs : std::filesystem::directory_iterator(folder_path)) {
+    for (const auto & job_dirs : std::filesystem::directory_iterator(jobinfo.get_workspace_path())) {
+        std::cout << job_dirs.path().string() << std::endl;
         if (search_string_for_substring(job_dirs.path().string(), "output")) {
             for (const auto & file : std::filesystem::directory_iterator(job_dirs)) {
                 std::string filename {file.path().filename().string()};
                 size_t lastindex {filename.find_last_of(".")};
                 std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
-                    filename.insert(3, "_" + job_num);
-                    const std::string out_path {const_base_path + "\\" + filename};  // TODO: Add job num to filename
+                    filename.insert(3, "_" + jobinfo.job_number);
+                    const std::string out_path {const_base_path + "\\" + filename};
                     try {
                         std::filesystem::copy(file.path().string(), out_path); // Copy files to temp dir
                     }  catch (std::filesystem::filesystem_error) {
