@@ -1,2 +1,2 @@
-minizip/** linguist-vendored
-zlib/** linguist-vendored
+minizip/**** linguist-vendored
+zlib/**** linguist-vendored
