@@ -1,0 +1,6 @@
+minizip/**** linguist-vendored
+zlib/***** linguist-vendored
+*.c linguist-detectable=false
+elzip.hpp linguist-detectable=false
+miniz.h linguist-detectable=false
+tinydir.h linguist-detectable=false
