@@ -11,42 +11,6 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
-//#include <unistd.h>
-
-std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
-    /*
-     * Recursively scan workspace root path to find path of specific job workspace.
-     * @param job_num: The job identifier to search for
-     * @param username: The user's username. This determines where the directories are found
-     * @return workspace_path: The path to the job's workspace
-     */
-
-    std::string desktop_path {get_home_path()};
-    std::cout << desktop_path << std::endl;
-    std::string workspace_root {desktop_path + "\\Desktop\\Workspaces"};
-
-    std::vector<std::string> invalid_directories {"input", "output", "Saved States"};
-
-    // Search for the workspace directory that contains the job_num. The second for loop
-    // makes sure that the input, output, or saved states subdirectory isn't selected.
-    for (const auto & state : std::filesystem::directory_iterator(workspace_root)) { // Workspaces level
-        for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // States level
-            for (const auto & job_id : std::filesystem::directory_iterator(city.path())) {
-                std::string search_path = job_id.path().string();  // Convert  fs path to string
-                if (search_string_for_substring(search_path, job_num)) {
-                    for (const std::string &bad_dir : invalid_directories) {
-                        if (!search_string_for_substring(search_path, bad_dir)) {
-                            std::cout << "Found workspace path: " << search_path << std::endl;
-                            return search_path;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return "PATHNOTFOUND";
-}
 
 void UtilityFunctions::create_directories() {
     /*
