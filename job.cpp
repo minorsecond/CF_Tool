@@ -2,12 +2,13 @@
 #include "utility_functions.h"
 
 #include <string>
+#include <filesystem>
 
 Job::Job()
 {
 }
 
-std::string Job::get_gis_path() {
+std::string Job::new_gis_path() {
     /*
      * Gets the GIS working path
      */
@@ -39,4 +40,35 @@ std::string Job::get_location_path() {
     UtilityFunctions ut;
     const std::string home_path {ut.get_home_path()};
     return home_path + "\\Documents\\Comsof_Jobs\\" + state.c_str() + "\\" + city.c_str();
+}
+
+std::string Job::find_gis_path() {
+    /*
+     * Finds path to GIS directory inside documents directory
+     * @param job_number: The job number to search for
+     * @return: The path as a string
+     */
+
+    /*
+     * Finds zip file in Downloads directory that contains job_number
+     * @param job_number: Job number to search for
+     */
+    UtilityFunctions ut;
+    const std::string download_path {ut.get_home_path() + "\\Documents\\"};
+    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
+        if (ut.search_string_for_substring(entry.path().string(), "Comsof_Jobs")) {
+            for (const auto & state : std::filesystem::directory_iterator(entry.path())) {  // Comsof Jobs level
+                for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // City level
+                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {
+                        std::string search_path = job.path().string();
+                        if (ut.search_string_for_substring(search_path, job_number)) {
+                            return search_path;  //TODO: only find files with .zip in the name
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return "FILENOTFOUND";
 }

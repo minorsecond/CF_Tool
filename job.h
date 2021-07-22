@@ -11,7 +11,8 @@ public:
     std::string city;
     std::string state;
     std::string get_location_path();
-    std::string get_gis_path();
+    std::string new_gis_path();
+    std::string find_gis_path();
     std::string get_workspace_path();
 };
 

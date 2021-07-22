@@ -228,7 +228,7 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
     ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
-    const std::string out_path {jobinfo.get_gis_path()};
+    const std::string out_path {jobinfo.new_gis_path()};
     const std::string reproj_path {out_path + "\\reprojected"};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
@@ -307,38 +307,6 @@ void UtilityFunctions::build_working_dirs(Job jobinfo) {
 
     create_directory_recursively(location_path_ws);
     create_directory_recursively(work_path_ws);
-}
-
-std::string UtilityFunctions::find_gis_path(const std::string job_number) {
-    /*
-     * Finds path to GIS directory inside documents directory
-     * @param job_number: The job number to search for
-     * @return: The path as a string
-     */
-
-    /*
-     * Finds zip file in Downloads directory that contains job_number
-     * @param job_number: Job number to search for
-     */
-
-    const std::string download_path {get_home_path() + "\\Documents\\"};
-    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
-        if (search_string_for_substring(entry.path().string(), "Comsof_Jobs")) {
-            for (const auto & state : std::filesystem::directory_iterator(entry.path())) {  // Comsof Jobs level
-                for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // City level
-                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {
-                        std::cout << "Path: " << job.path().string() << std::endl;
-                        std::string search_path = job.path().string();
-                        if (search_string_for_substring(search_path, job_number)) {
-                            return search_path;  //TODO: only find files with .zip in the name
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return "FILENOTFOUND";
 }
 
 bool UtilityFunctions::file_exists(const std::string &path) {

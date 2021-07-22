@@ -106,13 +106,14 @@ void MainWindow::handle_ac_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
+    Job jobinfo;
 
     // Handle processing of demand points
-    const std::string job_number {ui->AC_JobIDEntry->text().toStdString()};
-    const std::string gis_path {ut.find_gis_path(job_number)};
+    jobinfo.job_number = ui->AC_JobIDEntry->text().toStdString();
+    const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
-        er.set_error_message("Error: could not find directory for job # " + job_number);
+        er.set_error_message("Error: could not find directory for job # " + jobinfo.job_number);
         er.exec();
         return;
     }
