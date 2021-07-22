@@ -10,6 +10,7 @@ public:
     std::string job_number;
     std::string city;
     std::string state;
+    std::string get_location_path();
     std::string get_gis_path();
     std::string get_workspace_path();
 };

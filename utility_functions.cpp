@@ -236,7 +236,6 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
     std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
 
     //_wrename(tmp_dir_wt, out_path_wt);
-    std::filesystem::rename(tmp_dir, out_path);
     try {
        std::filesystem::rename(tmp_dir, out_path);
     }  catch (std::filesystem::filesystem_error) {
@@ -300,13 +299,13 @@ void UtilityFunctions::build_working_dirs(Job jobinfo) {
     //const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
     //            date.c_str() + "-" + job_num.c_str()};
 
-    const std::string gis_path {jobinfo.get_gis_path()};
+    const std::string location_path {jobinfo.get_location_path()};
     const std::string work_path {jobinfo.get_workspace_path()};
 
-    std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
+    std::wstring location_path_ws {std::wstring(location_path.begin(), location_path.end())};
     std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};
 
-    create_directory_recursively(gis_path_ws);
+    create_directory_recursively(location_path_ws);
     create_directory_recursively(work_path_ws);
 }
 

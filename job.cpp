@@ -30,3 +30,13 @@ std::string Job::get_workspace_path() {
     const std::string date {ut.get_local_date()};
     return home_path + "\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_number.c_str();
 }
+
+std::string Job::get_location_path() {
+    /*
+     * Get the city state path located within the documents directory
+     */
+
+    UtilityFunctions ut;
+    const std::string home_path {ut.get_home_path()};
+    return home_path + "\\Documents\\Comsof_Jobs\\" + state.c_str() + "\\" + city.c_str();
+}
