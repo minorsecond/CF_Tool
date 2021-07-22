@@ -62,21 +62,6 @@ bool UtilityFunctions::search_string_for_substring(const std::string a, const st
     return false;
 }
 
-void UtilityFunctions::process_downloaded_data(const std::string job_num) {
-    /*
-     * Extract downloaded zip file into temp directory.
-     * @param job_num: The job number that should be extracted.
-     */
-
-    std::string downloads_path {get_home_path() + "\\Downloads"};
-    for (const auto & entry : std::filesystem::directory_iterator(downloads_path)) {
-        std::string search_path = entry.path().string();  // Convert  fs path to string
-        if (search_string_for_substring(search_path, job_num)) {
-            unzip_file(search_path);
-        }
-    }
-}
-
 void UtilityFunctions::unzip_file(const std::string path) {
     /*
      * Unzip the zip file located at path.
@@ -168,7 +153,7 @@ std::string UtilityFunctions::get_local_date() {
     return output;
 }
 
-std::string UtilityFunctions::find_zip_file(const std::string job_number) {
+std::string UtilityFunctions::find_zip_file(Job jobinfo) {
     /*
      * Finds zip file in Downloads directory that contains job_number
      * @param job_number: Job number to search for
@@ -177,7 +162,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
-        if (search_string_for_substring(search_path, job_number)) {
+        if (search_string_for_substring(search_path, jobinfo.job_number)) {
             return search_path;  //TODO: only find files with .zip in the name
         }
     }

@@ -56,18 +56,13 @@ void MainWindow::handle_cw_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     Job jobinfo;
-    const std::string job_id = ui->WC_JobIDInput->text().toStdString();
-    const std::string city = ui->WC_CityInput->text().toStdString();
-    const std::string state {ui->WC_StateInput->currentText().toStdString()};
-
-    jobinfo.job_number = job_id;
-    jobinfo.city = city;
-    jobinfo.state = state;
+    jobinfo.job_number = ui->WC_JobIDInput->text().toStdString();
+    jobinfo.city = ui->WC_CityInput->text().toStdString();
+    jobinfo.state = ui->WC_StateInput->currentText().toStdString();
 
     const std::string home_path {ut.get_home_path()};
     const std::string workspace_path {jobinfo.get_workspace_path()};
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
-    std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
     if (home_path == "PATHNOTFOUND") {  // Something bad happened
         er.set_error_message("Couldn't detect your home path. Contact developer.");
@@ -75,10 +70,9 @@ void MainWindow::handle_cw_process_button() {
         return;
     }
 
-    std::string zip_path {ut.find_zip_file(job_id)};
-    std::cout << zip_path << std::endl;
+    std::string zip_path {ut.find_zip_file(jobinfo)};
 
-    if (!job_id.empty() && !city.empty() && !state.empty()) {
+    if (!jobinfo.job_number.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
             ut.build_working_dirs(jobinfo);
