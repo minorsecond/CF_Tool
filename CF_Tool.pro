@@ -16,6 +16,7 @@ DEPENDPATH += C:\msys64\mingw64\include
 SOURCES += \
     elzip.cpp \
     errorwindow.cpp \
+    job.cpp \
     main.cpp \
     mainwindow.cpp \
     miniz.c \
@@ -65,6 +66,7 @@ HEADERS += \
     elzip.hpp \
     errorwindow.h \
     fswrapper.hpp \
+    job.h \
     mainwindow.h \
     miniz.h \
     minizip/include/minizip/crc32.h \

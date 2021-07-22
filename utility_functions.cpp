@@ -220,7 +220,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     return "FILENOTFOUND";
 }
 
-void UtilityFunctions::move_extracted_files(const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::move_extracted_files(Job jobinfo) {
     /*
      * Move all of the extracted shapefiles from _tmp into working directory
      * @param job_num: Job ID. This will be used to create the working directory
@@ -228,9 +228,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
-    const std::string date {get_local_date()};
-    const std::string dir_structure {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
-    const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
+    const std::string out_path {jobinfo.get_gis_path()};
     const std::string reproj_path {out_path + "\\reprojected"};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
@@ -238,6 +236,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
 
     //_wrename(tmp_dir_wt, out_path_wt);
+    std::filesystem::rename(tmp_dir, out_path);
     try {
        std::filesystem::rename(tmp_dir, out_path);
     }  catch (std::filesystem::filesystem_error) {
@@ -289,17 +288,20 @@ void UtilityFunctions::create_directory_recursively(const std::wstring &director
       }
 }
 
-void UtilityFunctions::build_working_dirs(const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::build_working_dirs(Job jobinfo) {
     /*
      * Create workspace and working directory
      * @param job_num: The job number to be used in directory names
      */
 
-    const std::string home {get_home_path()};
-    const std::string date {get_local_date()};
-    const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
-    const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
-                date.c_str() + "-" + job_num.c_str()};
+    //const std::string home {get_home_path()};
+    //const std::string date {get_local_date()};
+    //const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
+    //const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
+    //            date.c_str() + "-" + job_num.c_str()};
+
+    const std::string gis_path {jobinfo.get_gis_path()};
+    const std::string work_path {jobinfo.get_workspace_path()};
 
     std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
     std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};

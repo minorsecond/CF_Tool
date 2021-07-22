@@ -54,12 +54,17 @@ void MainWindow::handle_cw_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
+    Job jobinfo;
     const std::string job_id = ui->WC_JobIDInput->text().toStdString();
     const std::string city = ui->WC_CityInput->text().toStdString();
     const std::string state {ui->WC_StateInput->currentText().toStdString()};
+
+    jobinfo.job_number = job_id;
+    jobinfo.city = city;
+    jobinfo.state = state;
+
     const std::string home_path {ut.get_home_path()};
-    const std::string date {ut.get_local_date()};
-    const std::string workspace_path {home_path + "\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str()};
+    const std::string workspace_path {jobinfo.get_workspace_path()};
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
     std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
@@ -75,7 +80,7 @@ void MainWindow::handle_cw_process_button() {
     if (!job_id.empty() && !city.empty() && !state.empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
-            ut.build_working_dirs(job_id, city, state);
+            ut.build_working_dirs(jobinfo);
             ut.unzip_file(zip_path);
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
@@ -84,7 +89,7 @@ void MainWindow::handle_cw_process_button() {
             er.exec();
         }
 
-        ut.move_extracted_files(job_id, city, state);  // Move files to working directory
+        ut.move_extracted_files(jobinfo);  // Move files to working directory
         ut.create_directory_recursively(workspace_path_ws);
     } else {
         const std::string error_message {"Not all required fields populated"};
