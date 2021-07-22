@@ -95,7 +95,7 @@ void UtilityFunctions::zip_files(Job jobinfo) {
     const std::string city_state_path {jobinfo.get_deliverable_path()};
     const std::string tmp_path {city_state_path + "\\tmp"};
     const std::string const_base_path {tmp_path};
-    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.job_number.c_str() + ".zip"};
+    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.job_id.c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
     std::vector<std::string> deliverable_files {"OUT_AccessStructures",
                                                 "OUT_Closures",
@@ -114,7 +114,7 @@ void UtilityFunctions::zip_files(Job jobinfo) {
                 size_t lastindex {filename.find_last_of(".")};
                 std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
-                    filename.insert(3, "_" + jobinfo.job_number);
+                    filename.insert(3, "_" + jobinfo.job_id);
                     const std::string out_path {const_base_path + "\\" + filename};
                     try {
                         std::filesystem::copy(file.path().string(), out_path); // Copy files to temp dir
@@ -162,7 +162,7 @@ std::string UtilityFunctions::find_zip_file(Job jobinfo) {
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
-        if (search_string_for_substring(search_path, jobinfo.job_number)) {
+        if (search_string_for_substring(search_path, jobinfo.job_id)) {
             return search_path;  //TODO: only find files with .zip in the name
         }
     }

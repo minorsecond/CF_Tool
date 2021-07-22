@@ -7,7 +7,7 @@ class Job
 {
 public:
     Job();
-    std::string job_number;
+    std::string job_id;
     std::string city;
     std::string state;
     std::string get_location_path();

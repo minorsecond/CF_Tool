@@ -56,7 +56,7 @@ void MainWindow::handle_cw_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     Job jobinfo;
-    jobinfo.job_number = ui->WC_JobIDInput->text().toStdString();
+    jobinfo.job_id = ui->WC_JobIDInput->text().toStdString();
     jobinfo.city = ui->WC_CityInput->text().toStdString();
     jobinfo.state = ui->WC_StateInput->currentText().toStdString();
 
@@ -72,7 +72,7 @@ void MainWindow::handle_cw_process_button() {
 
     std::string zip_path {ut.find_zip_file(jobinfo)};
 
-    if (!jobinfo.job_number.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
+    if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
             ut.build_working_dirs(jobinfo);
@@ -104,11 +104,11 @@ void MainWindow::handle_ac_process_button() {
     Job jobinfo;
 
     // Handle processing of demand points
-    jobinfo.job_number = ui->AC_JobIDEntry->text().toStdString();
+    jobinfo.job_id = ui->AC_JobIDEntry->text().toStdString();
     const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
-        er.set_error_message("Error: could not find directory for job # " + jobinfo.job_number);
+        er.set_error_message("Error: could not find directory for job # " + jobinfo.job_id);
         er.exec();
         return;
     }
@@ -181,12 +181,12 @@ void MainWindow::handle_da_process_button() {
     ErrorWindow er;
     Job jobinfo;
 
-    jobinfo.job_number = ui->DA_JobIdEntry->text().toStdString();
+    jobinfo.job_id = ui->DA_JobIdEntry->text().toStdString();
     jobinfo.city = ui->DA_CityInput->text().toStdString();
     jobinfo.state = ui->DA_StateInput->currentText().toStdString();
 
     if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
-        er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_number);
+        er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
         er.exec();
         return;
     }
