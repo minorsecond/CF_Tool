@@ -160,13 +160,14 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
     for (const auto & job_dirs : std::filesystem::directory_iterator(folder_path)) {
         if (search_string_for_substring(job_dirs.path().string(), "output")) {
             for (const auto & file : std::filesystem::directory_iterator(job_dirs)) {
-                const std::string filename {file.path().filename().string()};
+                std::string filename {file.path().filename().string()};
                 size_t lastindex {filename.find_last_of(".")};
                 std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
-                    const std::string out_path {const_base_path + "\\" + filename};
+                    filename.insert(3, "_" + job_num);
+                    const std::string out_path {const_base_path + "\\" + filename};  // TODO: Add job num to filename
                     try {
-                        std::filesystem::copy(file.path().string(), out_path);
+                        std::filesystem::copy(file.path().string(), out_path); // Copy files to temp dir
                     }  catch (std::filesystem::filesystem_error) {
                         std::cout << "Output file probably already exists.";
                     }
