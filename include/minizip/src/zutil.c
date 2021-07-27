@@ -5,9 +5,9 @@
 
 /* @(#) $Id$ */
 
-#include "minizip/include/minizip/zutil.h"
+#include "include/minizip/include/minizip/zutil.h"
 #ifndef Z_SOLO
-#  include "minizip/include/minizip/gzguts.h"
+#  include "include/minizip/include/minizip/gzguts.h"
 #endif
 
 z_const char* const z_errmsg[10] = {

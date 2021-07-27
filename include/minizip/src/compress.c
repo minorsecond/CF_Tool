@@ -6,7 +6,7 @@
 /* @(#) $Id$ */
 
 #define ZLIB_INTERNAL
-#include "zlib/zlib.h"
+#include "include/zlib/zlib.h"
 
 /* ===========================================================================
      Compresses the source buffer into the destination buffer. The level

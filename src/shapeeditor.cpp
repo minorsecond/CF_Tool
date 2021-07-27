@@ -144,10 +144,41 @@ void ShapeEditor::process_poles(OGRLayer *in_layer) {
     OGRFieldDefn type_defn("EXISTING", OFTString);
     type_defn.SetWidth(254);
     in_layer->CreateField(&type_defn);
+    bool include_field_exists {false};
+    int include_field_id {-1};
+
+    // Try to find field ID of index attribute, if it exists
+    if (find_field_index("include", in_layer) != -1) {
+            include_field_exists = true;
+            include_field_id = find_field_index("index", in_layer);
+            std::cout << "Found Poles include field" << std::endl;
+    } else if (find_field_index("INCLUDE", in_layer) != -1) {
+            include_field_exists = true;
+            include_field_id = find_field_index("INCLUDE", in_layer);
+            std::cout << "Found poles INCLUDE field" << std::endl;
+    } else if (find_field_index("Include", in_layer) != -1) {
+            include_field_exists = true;
+            include_field_id = find_field_index("Include", in_layer);
+            std::cout << "Found poles Include field" << std::endl;
+    }
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
-        feature->SetField("EXISTING", "T");
-        in_layer->SetFeature(feature.release());
+        bool deleted_feature {false};
+        if (include_field_exists == true) {
+            std::string attr_value {feature->GetFieldAsString(include_field_id)};
+            std::transform(attr_value.begin(), attr_value.end(), attr_value.begin(),
+                                                  [](unsigned char c){return std::tolower(c); });
+            if (attr_value == "false") {
+                std::cout << "Deleting feature" << std::endl;
+                auto delete_result {in_layer->DeleteFeature(feature->GetFID())};
+                delete_result = true;
+            }
+        }
+
+        if (!deleted_feature) {
+            feature->SetField("EXISTING", "T");
+            in_layer->SetFeature(feature.release());
+        }
     }
 }
 

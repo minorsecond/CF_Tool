@@ -3,8 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#include "minizip/include/minizip/zutil.h"
-#include "minizip/include/minizip/inftrees.h"
+#include "include/minizip/include/minizip/zutil.h"
+#include "include/minizip/include/minizip/inftrees.h"
 
 #define MAXBITS 15
 
