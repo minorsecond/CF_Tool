@@ -108,6 +108,8 @@ void MainWindow::handle_ac_process_button() {
     ConfirmDialog confirm;
     Job jobinfo;
 
+    std::string completed_message {"Attributes created"};
+
     // Handle processing of demand points
     jobinfo.job_id = ui->AC_JobIDEntry->text().toStdString();
     const std::string gis_path {jobinfo.find_gis_path()};
@@ -143,9 +145,20 @@ void MainWindow::handle_ac_process_button() {
 
     if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
         OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
-        ShapeEditor::create_demand_point_fields(demand_points);
-        ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME
-        demand_points->SyncToDisk();
+
+        std::cout << "FIELD INDEX**** " << ShapeEditor::find_field_index("INCLUDE", demand_points) << std::endl;;
+
+        if (ShapeEditor::find_field_index("INCLUDE", demand_points) == -1) {
+            ShapeEditor::create_demand_point_fields(demand_points);
+            ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME
+            demand_points->SyncToDisk();
+        } else {
+            er.set_error_message("INCLUDE field already exists in addresses shapefile."
+                " Recreate shapefile in reprojected directory and rerun to process.");
+            er.exec();
+            completed_message = "Attributes created. Skipped addresses.";
+        }
+
         delete demand_points;  // delete pointer
     }
 
@@ -177,7 +190,7 @@ void MainWindow::handle_ac_process_button() {
         delete fdt_boundary;
     }
 
-    confirm.set_confirmation_message("Attributes created.");
+    confirm.set_confirmation_message(completed_message);
     confirm.exec();
 }
 
