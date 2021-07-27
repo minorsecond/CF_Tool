@@ -1,6 +1,6 @@
 include/minizip/**** linguist-vendored
 include/zlib/***** linguist-vendored
-*.c linguist-detectable=false
-elzip.hpp linguist-detectable=false
-miniz.h linguist-detectable=false
-tinydir.h linguist-detectable=false
+include/*.c linguist-detectable=false
+include/lzip.hpp linguist-detectable=false
+include/miniz.h linguist-detectable=false
+include/tinydir.h linguist-detectable=false
