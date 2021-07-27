@@ -1,5 +1,5 @@
-minizip/**** linguist-vendored
-zlib/***** linguist-vendored
+include/minizip/**** linguist-vendored
+include/zlib/***** linguist-vendored
 *.c linguist-detectable=false
 elzip.hpp linguist-detectable=false
 miniz.h linguist-detectable=false
