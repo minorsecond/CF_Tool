@@ -14,8 +14,10 @@ DEPENDPATH += C:\msys64\mingw64\include
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    confirmdialog.cpp \
     elzip.cpp \
     errorwindow.cpp \
+    job.cpp \
     main.cpp \
     mainwindow.cpp \
     miniz.c \
@@ -62,9 +64,11 @@ SOURCES += \
     #zlib/zutil.c
 
 HEADERS += \
+    confirmdialog.h \
     elzip.hpp \
     errorwindow.h \
     fswrapper.hpp \
+    job.h \
     mainwindow.h \
     miniz.h \
     minizip/include/minizip/crc32.h \
@@ -103,6 +107,7 @@ HEADERS += \
     #zlib/zutil.h
 
 FORMS += \
+    confirmdialog.ui \
     errorwindow.ui \
     mainwindow.ui
 

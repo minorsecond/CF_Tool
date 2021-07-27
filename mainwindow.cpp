@@ -9,9 +9,11 @@
 #include "ui_mainwindow.h"
 #include "utility_functions.h"
 #include "errorwindow.h"
+#include "confirmdialog.h"
 #include "shapeeditor.h"
 
 #include <iostream>
+#include <filesystem>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -54,14 +56,16 @@ void MainWindow::handle_cw_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
-    const std::string job_id = ui->WC_JobIDInput->text().toStdString();
-    const std::string city = ui->WC_CityInput->text().toStdString();
-    const std::string state {ui->WC_StateInput->currentText().toStdString()};
+    ConfirmDialog confirm;
+
+    Job jobinfo;
+    jobinfo.job_id = ui->WC_JobIDInput->text().toStdString();
+    jobinfo.city = ui->WC_CityInput->text().toStdString();
+    jobinfo.state = ui->WC_StateInput->currentText().toStdString();
+
     const std::string home_path {ut.get_home_path()};
-    const std::string date {ut.get_local_date()};
-    const std::string workspace_path {home_path + "\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str()};
+    const std::string workspace_path {jobinfo.new_workspace_path()};
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
-    std::cout << "Job ID: " << job_id << " City: " << city << " State: " << state << std::endl;
 
     if (home_path == "PATHNOTFOUND") {  // Something bad happened
         er.set_error_message("Couldn't detect your home path. Contact developer.");
@@ -69,13 +73,12 @@ void MainWindow::handle_cw_process_button() {
         return;
     }
 
-    std::string zip_path {ut.find_zip_file(job_id)};
-    std::cout << zip_path << std::endl;
+    std::string zip_path {ut.find_zip_file(jobinfo)};
 
-    if (!job_id.empty() && !city.empty() && !state.empty()) {
+    if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
-            ut.build_working_dirs(job_id, city, state);
+            ut.build_working_dirs(jobinfo);
             ut.unzip_file(zip_path);
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
@@ -83,9 +86,10 @@ void MainWindow::handle_cw_process_button() {
             er.set_error_message(error_message);
             er.exec();
         }
-
-        ut.move_extracted_files(job_id, city, state);  // Move files to working directory
+        ut.move_extracted_files(jobinfo);  // Move files to working directory
         ut.create_directory_recursively(workspace_path_ws);
+        confirm.set_confirmation_message("Workspaces created.");
+        confirm.exec();
     } else {
         const std::string error_message {"Not all required fields populated"};
         std::cout << error_message << std::endl;
@@ -101,13 +105,15 @@ void MainWindow::handle_ac_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
+    ConfirmDialog confirm;
+    Job jobinfo;
 
     // Handle processing of demand points
-    const std::string job_number {ui->AC_JobIDEntry->text().toStdString()};
-    const std::string gis_path {ut.find_gis_path(job_number)};
+    jobinfo.job_id = ui->AC_JobIDEntry->text().toStdString();
+    const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
-        er.set_error_message("Error: could not find directory for job # " + job_number);
+        er.set_error_message("Error: could not find directory for job # " + jobinfo.job_id);
         er.exec();
         return;
     }
@@ -170,6 +176,9 @@ void MainWindow::handle_ac_process_button() {
         fdt_boundary->SyncToDisk();
         delete fdt_boundary;
     }
+
+    confirm.set_confirmation_message("Attributes created.");
+    confirm.exec();
 }
 
 void MainWindow::handle_da_process_button() {
@@ -178,18 +187,22 @@ void MainWindow::handle_da_process_button() {
      */
     UtilityFunctions ut;
     ErrorWindow er;
-    const std::string job_id = ui->DA_JobIdEntry->text().toStdString();
-    const std::string city = ui->DA_CityInput->text().toStdString();
-    const std::string state {ui->DA_StateInput->currentText().toStdString()};
-    const std::string workspaces_path {ut.get_workspace_path(job_id)};
+    ConfirmDialog confirm;
+    Job jobinfo;
 
-    if (workspaces_path == "PATHNOTFOUND") {
-        er.set_error_message("Warning: could not find workspace path for job # " + job_id);
+    jobinfo.job_id = ui->DA_JobIdEntry->text().toStdString();
+    jobinfo.city = ui->DA_CityInput->text().toStdString();
+    jobinfo.state = ui->DA_StateInput->currentText().toStdString();
+
+    if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
+        er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
         er.exec();
         return;
     }
 
-    ut.zip_files(workspaces_path, job_id, city, state);
+    ut.zip_files(jobinfo);
+    confirm.set_confirmation_message("Created deliverable archive");
+    confirm.exec();
 }
 
 MainWindow::~MainWindow()

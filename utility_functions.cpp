@@ -11,42 +11,6 @@
 #include <shlobj.h>
 #include <objbase.h>
 #include <iostream>
-//#include <unistd.h>
-
-std::string UtilityFunctions::get_workspace_path(const std::string job_num) {
-    /*
-     * Recursively scan workspace root path to find path of specific job workspace.
-     * @param job_num: The job identifier to search for
-     * @param username: The user's username. This determines where the directories are found
-     * @return workspace_path: The path to the job's workspace
-     */
-
-    std::string desktop_path {get_home_path()};
-    std::cout << desktop_path << std::endl;
-    std::string workspace_root {desktop_path + "\\Desktop\\Workspaces"};
-
-    std::vector<std::string> invalid_directories {"input", "output", "Saved States"};
-
-    // Search for the workspace directory that contains the job_num. The second for loop
-    // makes sure that the input, output, or saved states subdirectory isn't selected.
-    for (const auto & state : std::filesystem::directory_iterator(workspace_root)) { // Workspaces level
-        for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // States level
-            for (const auto & job_id : std::filesystem::directory_iterator(city.path())) {
-                std::string search_path = job_id.path().string();  // Convert  fs path to string
-                if (search_string_for_substring(search_path, job_num)) {
-                    for (const std::string &bad_dir : invalid_directories) {
-                        if (!search_string_for_substring(search_path, bad_dir)) {
-                            std::cout << "Found workspace path: " << search_path << std::endl;
-                            return search_path;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return "PATHNOTFOUND";
-}
 
 void UtilityFunctions::create_directories() {
     /*
@@ -98,21 +62,6 @@ bool UtilityFunctions::search_string_for_substring(const std::string a, const st
     return false;
 }
 
-void UtilityFunctions::process_downloaded_data(const std::string job_num) {
-    /*
-     * Extract downloaded zip file into temp directory.
-     * @param job_num: The job number that should be extracted.
-     */
-
-    std::string downloads_path {get_home_path() + "\\Downloads"};
-    for (const auto & entry : std::filesystem::directory_iterator(downloads_path)) {
-        std::string search_path = entry.path().string();  // Convert  fs path to string
-        if (search_string_for_substring(search_path, job_num)) {
-            unzip_file(search_path);
-        }
-    }
-}
-
 void UtilityFunctions::unzip_file(const std::string path) {
     /*
      * Unzip the zip file located at path.
@@ -134,7 +83,7 @@ void UtilityFunctions::unzip_file(const std::string path) {
     std::filesystem::rename(path, naked_path);
 }
 
-void UtilityFunctions::zip_files(const std::string folder_path, const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::zip_files(Job jobinfo) {
     /*
      * Compress files in directory into a zip file. Files will have timestamp in name,
      * in the format YYYY-MM-DD_JOBNUM.zip
@@ -143,10 +92,10 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
      */
 
     const std::string date {get_local_date()};
-    const std::string city_state_path {get_home_path() + "\\Desktop\\Deliverables\\" + state + "\\" + city + "\\"};
+    const std::string city_state_path {jobinfo.get_deliverable_path()};
     const std::string tmp_path {city_state_path + "\\tmp"};
     const std::string const_base_path {tmp_path};
-    const std::string target {city_state_path + date.c_str() + "-" + job_num.c_str() + ".zip"};
+    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.job_id.c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
     std::vector<std::string> deliverable_files {"OUT_AccessStructures",
                                                 "OUT_Closures",
@@ -155,17 +104,18 @@ void UtilityFunctions::zip_files(const std::string folder_path, const std::strin
                                                 "OUT_DropClusters",
                                                 "OUT_FeederCables"};
 
-    std::cout << "Scanning " << folder_path << " for job files" << std::endl;
+    std::cout << "Scanning " << jobinfo.get_workspace_path() << " for job files" << std::endl;
     create_directory_recursively(const_base_path_ws); // Temp directory to store needed files before zipping
-    for (const auto & job_dirs : std::filesystem::directory_iterator(folder_path)) {
+    for (const auto & job_dirs : std::filesystem::directory_iterator(jobinfo.get_workspace_path())) {
+        std::cout << job_dirs.path().string() << std::endl;
         if (search_string_for_substring(job_dirs.path().string(), "output")) {
             for (const auto & file : std::filesystem::directory_iterator(job_dirs)) {
                 std::string filename {file.path().filename().string()};
                 size_t lastindex {filename.find_last_of(".")};
                 std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
-                    filename.insert(3, "_" + job_num);
-                    const std::string out_path {const_base_path + "\\" + filename};  // TODO: Add job num to filename
+                    filename.insert(3, "_" + jobinfo.job_id);
+                    const std::string out_path {const_base_path + "\\" + filename};
                     try {
                         std::filesystem::copy(file.path().string(), out_path); // Copy files to temp dir
                     }  catch (std::filesystem::filesystem_error) {
@@ -203,7 +153,7 @@ std::string UtilityFunctions::get_local_date() {
     return output;
 }
 
-std::string UtilityFunctions::find_zip_file(const std::string job_number) {
+std::string UtilityFunctions::find_zip_file(Job jobinfo) {
     /*
      * Finds zip file in Downloads directory that contains job_number
      * @param job_number: Job number to search for
@@ -212,7 +162,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
-        if (search_string_for_substring(search_path, job_number)) {
+        if (search_string_for_substring(search_path, jobinfo.job_id)) {
             return search_path;  //TODO: only find files with .zip in the name
         }
     }
@@ -220,7 +170,7 @@ std::string UtilityFunctions::find_zip_file(const std::string job_number) {
     return "FILENOTFOUND";
 }
 
-void UtilityFunctions::move_extracted_files(const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::move_extracted_files(Job jobinfo) {
     /*
      * Move all of the extracted shapefiles from _tmp into working directory
      * @param job_num: Job ID. This will be used to create the working directory
@@ -228,9 +178,7 @@ void UtilityFunctions::move_extracted_files(const std::string job_num, const std
     ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
-    const std::string date {get_local_date()};
-    const std::string dir_structure {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
-    const std::string out_path {dir_structure + "\\" + date.c_str() + "-" + job_num.c_str()};
+    const std::string out_path {jobinfo.new_gis_path()};
     const std::string reproj_path {out_path + "\\reprojected"};
     std::cout << "Moving to working dir " << out_path << std::endl;
 
@@ -289,55 +237,20 @@ void UtilityFunctions::create_directory_recursively(const std::wstring &director
       }
 }
 
-void UtilityFunctions::build_working_dirs(const std::string job_num, const std::string city, const std::string state) {
+void UtilityFunctions::build_working_dirs(Job jobinfo) {
     /*
      * Create workspace and working directory
      * @param job_num: The job number to be used in directory names
      */
 
-    const std::string home {get_home_path()};
-    const std::string date {get_local_date()};
-    const std::string gis_path {home + "\\Documents\\Comsof_Jobs\\" + state + "\\" + city};
-    const std::string work_path {home + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" +
-                date.c_str() + "-" + job_num.c_str()};
+    const std::string location_path {jobinfo.get_location_path()};
+    const std::string work_path {jobinfo.new_workspace_path()};
 
-    std::wstring gis_path_ws {std::wstring(gis_path.begin(), gis_path.end())};
+    std::wstring location_path_ws {std::wstring(location_path.begin(), location_path.end())};
     std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};
 
-    create_directory_recursively(gis_path_ws);
+    create_directory_recursively(location_path_ws);
     create_directory_recursively(work_path_ws);
-}
-
-std::string UtilityFunctions::find_gis_path(const std::string job_number) {
-    /*
-     * Finds path to GIS directory inside documents directory
-     * @param job_number: The job number to search for
-     * @return: The path as a string
-     */
-
-    /*
-     * Finds zip file in Downloads directory that contains job_number
-     * @param job_number: Job number to search for
-     */
-
-    const std::string download_path {get_home_path() + "\\Documents\\"};
-    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
-        if (search_string_for_substring(entry.path().string(), "Comsof_Jobs")) {
-            for (const auto & state : std::filesystem::directory_iterator(entry.path())) {  // Comsof Jobs level
-                for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // City level
-                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {
-                        std::cout << "Path: " << job.path().string() << std::endl;
-                        std::string search_path = job.path().string();
-                        if (search_string_for_substring(search_path, job_number)) {
-                            return search_path;  //TODO: only find files with .zip in the name
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return "FILENOTFOUND";
 }
 
 bool UtilityFunctions::file_exists(const std::string &path) {
