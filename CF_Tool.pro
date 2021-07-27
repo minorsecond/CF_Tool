@@ -14,6 +14,7 @@ DEPENDPATH += C:\msys64\mingw64\include
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    confirmdialog.cpp \
     elzip.cpp \
     errorwindow.cpp \
     job.cpp \
@@ -63,6 +64,7 @@ SOURCES += \
     #zlib/zutil.c
 
 HEADERS += \
+    confirmdialog.h \
     elzip.hpp \
     errorwindow.h \
     fswrapper.hpp \
@@ -105,6 +107,7 @@ HEADERS += \
     #zlib/zutil.h
 
 FORMS += \
+    confirmdialog.ui \
     errorwindow.ui \
     mainwindow.ui
 

@@ -9,6 +9,7 @@
 #include "ui_mainwindow.h"
 #include "utility_functions.h"
 #include "errorwindow.h"
+#include "confirmdialog.h"
 #include "shapeeditor.h"
 
 #include <iostream>
@@ -55,6 +56,8 @@ void MainWindow::handle_cw_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
+    ConfirmDialog confirm;
+
     Job jobinfo;
     jobinfo.job_id = ui->WC_JobIDInput->text().toStdString();
     jobinfo.city = ui->WC_CityInput->text().toStdString();
@@ -83,9 +86,10 @@ void MainWindow::handle_cw_process_button() {
             er.set_error_message(error_message);
             er.exec();
         }
-
         ut.move_extracted_files(jobinfo);  // Move files to working directory
         ut.create_directory_recursively(workspace_path_ws);
+        confirm.set_confirmation_message("Workspaces created.");
+        confirm.exec();
     } else {
         const std::string error_message {"Not all required fields populated"};
         std::cout << error_message << std::endl;
@@ -101,6 +105,7 @@ void MainWindow::handle_ac_process_button() {
 
     UtilityFunctions ut;
     ErrorWindow er;
+    ConfirmDialog confirm;
     Job jobinfo;
 
     // Handle processing of demand points
@@ -171,6 +176,9 @@ void MainWindow::handle_ac_process_button() {
         fdt_boundary->SyncToDisk();
         delete fdt_boundary;
     }
+
+    confirm.set_confirmation_message("Attributes created.");
+    confirm.exec();
 }
 
 void MainWindow::handle_da_process_button() {
@@ -179,6 +187,7 @@ void MainWindow::handle_da_process_button() {
      */
     UtilityFunctions ut;
     ErrorWindow er;
+    ConfirmDialog confirm;
     Job jobinfo;
 
     jobinfo.job_id = ui->DA_JobIdEntry->text().toStdString();
@@ -192,6 +201,8 @@ void MainWindow::handle_da_process_button() {
     }
 
     ut.zip_files(jobinfo);
+    confirm.set_confirmation_message("Created deliverable archive");
+    confirm.exec();
 }
 
 MainWindow::~MainWindow()

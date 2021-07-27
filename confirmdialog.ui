@@ -1,39 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ErrorWindow</class>
- <widget class="QDialog" name="ErrorWindow">
+ <class>ConfirmDialog</class>
+ <widget class="QDialog" name="ConfirmDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>738</width>
-    <height>102</height>
+    <width>420</width>
+    <height>50</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Error</string>
+   <string>Dialog</string>
   </property>
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>9</x>
      <y>10</y>
-     <width>721</width>
-     <height>81</height>
+     <width>401</width>
+     <height>31</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="1">
+    <item row="0" column="1">
      <widget class="QPushButton" name="OKButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="maximumSize">
        <size>
-        <width>100</width>
+        <width>75</width>
         <height>16777215</height>
        </size>
       </property>
@@ -42,12 +36,12 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="ErrorMessage">
+    <item row="0" column="0">
+     <widget class="QLabel" name="confirmationMessage">
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>50</height>
+        <width>100</width>
+        <height>0</height>
        </size>
       </property>
       <property name="text">
