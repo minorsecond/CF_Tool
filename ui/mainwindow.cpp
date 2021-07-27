@@ -146,8 +146,6 @@ void MainWindow::handle_ac_process_button() {
     if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
         OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
 
-        std::cout << "FIELD INDEX**** " << ShapeEditor::find_field_index("INCLUDE", demand_points) << std::endl;;
-
         if (ShapeEditor::find_field_index("INCLUDE", demand_points) == -1) {
             ShapeEditor::create_demand_point_fields(demand_points);
             ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME

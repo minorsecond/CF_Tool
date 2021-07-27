@@ -3,10 +3,10 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#include "minizip/include/minizip/zutil.h"
-#include "minizip/include/minizip/inftrees.h"
-#include "minizip/include/minizip/inflate.h"
-#include "minizip/include/minizip/inffast.h"
+#include "include/minizip/include/minizip/zutil.h"
+#include "include/minizip/include/minizip/inftrees.h"
+#include "include/minizip/include/minizip/inflate.h"
+#include "include/minizip/include/minizip/inffast.h"
 
 #ifdef ASMINF
 #  pragma message("Assembler code may have bugs -- use at your own risk")

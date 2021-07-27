@@ -28,7 +28,7 @@
 #  endif /* !DYNAMIC_CRC_TABLE */
 #endif /* MAKECRCH */
 
-#include "minizip/include/minizip/zutil.h"      /* for STDC and FAR definitions */
+#include "include/minizip/include/minizip/zutil.h"      /* for STDC and FAR definitions */
 
 /* Definitions for doing the crc four data bytes at a time. */
 #if !defined(NOBYFOUR) && defined(Z_U4)
@@ -179,7 +179,7 @@ local void write_table(out, table)
 /* ========================================================================
  * Tables of CRC-32s of all single-byte values, made by make_crc_table().
  */
-#include "minizip/include/minizip/crc32.h"
+#include "include/minizip/include/minizip/crc32.h"
 #endif /* DYNAMIC_CRC_TABLE */
 
 /* =========================================================================

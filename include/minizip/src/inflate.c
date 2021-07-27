@@ -80,10 +80,10 @@
  * The history for versions after 1.2.0 are in ChangeLog in zlib distribution.
  */
 
-#include "minizip/include/minizip/zutil.h"
-#include "minizip/include/minizip/inftrees.h"
-#include "minizip/include/minizip/inflate.h"
-#include "minizip/include/minizip/inffast.h"
+#include "include/minizip/include/minizip/zutil.h"
+#include "include/minizip/include/minizip/inftrees.h"
+#include "include/minizip/include/minizip/inflate.h"
+#include "include/minizip/include/minizip/inffast.h"
 
 #ifdef MAKEFIXED
 #  ifndef BUILDFIXED
@@ -324,7 +324,7 @@ struct inflate_state FAR * state;
         virgin = 0;
     }
 #else /* !BUILDFIXED */
-#   include "minizip/include/minizip/inffixed.h"
+#   include "include/minizip/include/minizip/inffixed.h"
 #endif /* BUILDFIXED */
     state->lencode = lenfix;
     state->lenbits = 9;

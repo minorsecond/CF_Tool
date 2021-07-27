@@ -10,10 +10,10 @@
    inflate_fast() can be used with either inflate.c or infback.c.
  */
 
-#include "minizip/include/minizip/zutil.h"
-#include "minizip/include/minizip/inftrees.h"
-#include "minizip/include/minizip/inflate.h"
-#include "minizip/include/minizip/inffast.h"
+#include "include/minizip/include/minizip/zutil.h"
+#include "include/minizip/include/minizip/inftrees.h"
+#include "include/minizip/include/minizip/inflate.h"
+#include "include/minizip/include/minizip/inffast.h"
 
 /* function prototypes */
 local void fixedtables OF((struct inflate_state FAR *state));
@@ -117,7 +117,7 @@ struct inflate_state FAR * state;
         virgin = 0;
     }
 #else /* !BUILDFIXED */
-#   include "minizip/include/minizip/inffixed.h"
+#   include "include/minizip/include/minizip/inffixed.h"
 #endif /* BUILDFIXED */
     state->lencode = lenfix;
     state->lenbits = 9;
