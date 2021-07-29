@@ -15,6 +15,7 @@ public:
     std::string get_local_date();
     std::string find_zip_file(Job jobinfo);
     void move_extracted_files(Job jobinfo);
+    void copy_files_in_dir(std::string in_dir, std::string out_dir);
     void create_directory_recursively(const std::wstring &directory);
     void build_working_dirs(Job jobinfo);
     bool file_exists(const std::string &path);

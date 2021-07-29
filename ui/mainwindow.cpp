@@ -88,6 +88,10 @@ void MainWindow::handle_cw_process_button() {
         }
         ut.move_extracted_files(jobinfo);  // Move files to working directory
         ut.create_directory_recursively(workspace_path_ws);
+
+        // Copy files to reprojected directory
+        ut.copy_files_in_dir(jobinfo.find_gis_path(), jobinfo.find_gis_path() + "\\reprojected");
+
         confirm.set_confirmation_message("Workspaces created.");
         confirm.exec();
     } else {
