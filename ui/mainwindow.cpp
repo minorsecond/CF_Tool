@@ -89,14 +89,17 @@ void MainWindow::handle_cw_process_button() {
         if (zip_path != "FILENOTFOUND") {
             ut.build_working_dirs(jobinfo);
             ut.unzip_file(zip_path);
+
+            ut.move_extracted_files(jobinfo);  // Move files to working directory
+            ut.create_directory_recursively(workspace_path_ws);
+            confirm.set_confirmation_message("Workspaces created.");
+            confirm.exec();
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
             std::cout << error_message << std::endl;
             er.set_error_message(error_message);
             er.exec();
         }
-        ut.move_extracted_files(jobinfo);  // Move files to working directory
-        ut.create_directory_recursively(workspace_path_ws);
 
         if (utm_zone != "Manual Reprojection") {
             // Copy files to reprojected directory
@@ -131,10 +134,7 @@ void MainWindow::handle_cw_process_button() {
                     std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
                 }
             }
-        }
-
-        confirm.set_confirmation_message("Workspaces created.");
-        confirm.exec();
+        }   
     } else {
         const std::string error_message {"Not all required fields populated"};
         std::cout << error_message << std::endl;
