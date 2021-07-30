@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // Populate the UTM zone combobox
-    const int zones[3] {10, 11, 16};
+    const int zones[10] {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
     for (int zone : zones) {
         ui->utmZoneBox->addItem(QString::fromStdString(std::to_string(zone)));
     }

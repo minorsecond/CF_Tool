@@ -275,7 +275,14 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     std::map<int, int> utm_zones {
         {10, 26910},
         {11, 32611},
-        {16, 32616}
+        {12, 32612},
+        {13, 32613},
+        {14, 32614},
+        {15, 32615},
+        {16, 32616},
+        {17, 32617},
+        {18, 32618},
+        {19, 32619}
     };
 
     // Proj library path
