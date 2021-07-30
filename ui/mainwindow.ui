@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="step1">
      <attribute name="title">
@@ -184,6 +184,7 @@
   <tabstop>WC_JobIDInput</tabstop>
   <tabstop>WC_CityInput</tabstop>
   <tabstop>WC_StateInput</tabstop>
+  <tabstop>utmZoneBox</tabstop>
   <tabstop>WC_ProcuessButton</tabstop>
   <tabstop>AC_JobIDEntry</tabstop>
   <tabstop>AC_ProcessButton</tabstop>
