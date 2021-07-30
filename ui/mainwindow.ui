@@ -36,13 +36,6 @@
         <item row="0" column="1">
          <widget class="QLineEdit" name="WC_JobIDInput"/>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Job ID</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -50,16 +43,39 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="WC_StateInput"/>
-        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="WC_CityInput"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="WC_StateInput"/>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>City</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Job ID</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="utmZoneBox">
+          <item>
+           <property name="text">
+            <string>Manual Reprojection</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="utmZoneLabel">
+          <property name="text">
+           <string>Zone</string>
           </property>
          </widget>
         </item>

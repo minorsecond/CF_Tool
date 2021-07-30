@@ -1,6 +1,9 @@
 #include "shapeeditor.h"
 #include "ui/errorwindow.h"
 #include <iostream>
+#include <filesystem>
+#include <ogr_feature.h>
+#include <gdal.h>
 
 ShapeEditor::ShapeEditor() {};
 
@@ -254,23 +257,34 @@ std::string ShapeEditor::uppercase_string(std::string input_string) {
     return uppercase_string;
 }
 
-void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone) {
+void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) {
     /*
      * Reproject the layer.
      * @param in_layer: The layer to reproject
      * @param utm_zone: The UTM zone to reproject to
      */
 
+    const char *pszDriverName {"ESRI Shapefile"};
+    GDALAllRegister();
+    GDALDriver *poDriver {nullptr};
+    poDriver = GetGDALDriverManager()->GetDriverByName(pszDriverName);
+
     // Convert UTM zone integer into the EPSG code. This map will be updated
     // as new areas become active. the N specifier, e.g. 10N, is taken for
     // granted.
-    std::map<int, std::string> utm_zones {
-        {10, "26910"},
-        {11, "32611"},
-        {16, "32616"}
+    std::map<int, int> utm_zones {
+        {10, 26910},
+        {11, 32611},
+        {16, 32616}
     };
 
-    std::string crs {};
+    // Proj library path
+    const std::string ppath {std::filesystem::current_path().string()};
+    const char * proj_path[] {ppath.c_str(), nullptr};
+    std::cout << "Searching for proj.db in " << ppath << std::endl;
+    OSRSetPROJSearchPaths(proj_path);
+
+    int crs {};
     for (auto it {utm_zones.begin()}; it != utm_zones.end(); it++) {
         if (it->first == utm_zone) {
             crs = it->second;
@@ -278,12 +292,30 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone) {
     }
 
     OGRSpatialReference *srFrom {in_layer->GetSpatialRef()};
-    OGRSpatialReference *srTo {};
-    srTo->SetWellKnownGeogCS(crs.c_str());
+    OGRSpatialReference *srTo = new OGRSpatialReference;
+
+    std::cout << "Converting to EPSG: " << crs << std::endl;
+    srTo->importFromEPSG(crs);
     OGRCoordinateTransformation *coordTrans {OGRCreateCoordinateTransformation(srFrom, srTo)};
 
+    // Create new layer
+    GDALDataset *poDS {nullptr};
+    poDS = poDriver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, NULL);
+    OGRLayer *poLayer {nullptr};
+    poLayer = poDS->CreateLayer("Reprojected", srTo, wkbUnknown, NULL);
+
     for (OGRFeatureUniquePtr &feature : in_layer) {
-        auto transformed {feature->GetGeometryRef()};
-        transformed->transform(coordTrans);
+        OGRGeometry *transformed {feature->GetGeometryRef()};
+              transformed->transform(coordTrans);
+              feature->SetGeometry(transformed);
+              poLayer->CreateFeature(feature.get()->Clone());
+              poLayer->SetFeature(feature.release());
     }
+
+    // Cleanup
+    poLayer->SyncToDisk();
+    delete poLayer;
+    delete poDS;
+    delete coordTrans;
+    delete srTo;
 }
