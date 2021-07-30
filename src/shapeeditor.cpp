@@ -298,6 +298,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
         }
     }
 
+    // Get projection data
     OGRSpatialReference *srFrom {in_layer->GetSpatialRef()};
     OGRSpatialReference *srTo = new OGRSpatialReference;
 
@@ -312,16 +313,18 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     poLayer = poDS->CreateLayer("Reprojected", srTo, wkbUnknown, NULL);
     auto lyr_def {in_layer->GetLayerDefn()};
 
+    // Add attribute table
     for (int i {0}; i < lyr_def->GetFieldCount(); i++) {
         poLayer->CreateField(lyr_def->GetFieldDefn(i));
     }
 
+    // Add reprojected geometry
     for (OGRFeatureUniquePtr &feature : in_layer) {
         OGRGeometry *transformed {feature->GetGeometryRef()};
-              transformed->transform(coordTrans);
-              feature->SetGeometry(transformed);
-              poLayer->CreateFeature(feature.get()->Clone());
-              poLayer->SetFeature(feature.release());
+        transformed->transform(coordTrans);
+        feature->SetGeometry(transformed);
+        poLayer->CreateFeature(feature.get()->Clone());
+        poLayer->SetFeature(feature.release());
     }
 
     // Cleanup
