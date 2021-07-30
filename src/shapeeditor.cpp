@@ -310,6 +310,11 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     poDS = poDriver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, NULL);
     OGRLayer *poLayer {nullptr};
     poLayer = poDS->CreateLayer("Reprojected", srTo, wkbUnknown, NULL);
+    auto lyr_def {in_layer->GetLayerDefn()};
+
+    for (int i {0}; i < lyr_def->GetFieldCount(); i++) {
+        poLayer->CreateField(lyr_def->GetFieldDefn(i));
+    }
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         OGRGeometry *transformed {feature->GetGeometryRef()};
@@ -322,7 +327,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     // Cleanup
     poLayer->SyncToDisk();
     delete poLayer;
-    delete poDS;
+    GDALClose(poDS);
     delete coordTrans;
     delete srTo;
 }
