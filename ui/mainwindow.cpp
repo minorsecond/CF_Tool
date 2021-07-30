@@ -108,12 +108,14 @@ void MainWindow::handle_cw_process_button() {
                 const size_t lastindex {file.path().string().find_last_of(".") + 1};
                 const std::string extension {file.path().string().substr(lastindex)}; // Get extension
                 if (extension == "shp") {
-                    std::cout << "Reprojecting " << file.path().string() << std::endl;
                     const std::string filename {file.path().filename().string()};
                     const std::string out_path {reproj_path + "\\" + filename};
-                    OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
-                    shp.reproject(in_layer, std::stoi(utm_zone), out_path);
-                    delete in_layer;
+                    if (!ut.file_exists(out_path)) {
+                        std::cout << "Reprojecting " << file.path().string() << std::endl;
+                        OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
+                        shp.reproject(in_layer, std::stoi(utm_zone), out_path);
+                        delete in_layer;
+                    }
                 }
             }
 
