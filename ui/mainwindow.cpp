@@ -92,8 +92,6 @@ void MainWindow::handle_cw_process_button() {
 
             ut.move_extracted_files(jobinfo);  // Move files to working directory
             ut.create_directory_recursively(workspace_path_ws);
-            confirm.set_confirmation_message("Workspaces created.");
-            confirm.exec();
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
             std::cout << error_message << std::endl;
@@ -140,6 +138,11 @@ void MainWindow::handle_cw_process_button() {
         std::cout << error_message << std::endl;
         er.set_error_message(error_message);
         er.exec();
+    }
+
+    if (zip_path != "FILENOTFOUND") {
+        confirm.set_confirmation_message("Workspaces created.");
+        confirm.exec();
     }
 }
 
