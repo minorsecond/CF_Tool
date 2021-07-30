@@ -43,6 +43,12 @@ MainWindow::MainWindow(QWidget *parent)
         ui->DA_StateInput->addItem(state);
     }
 
+    // Populate the UTM zone combobox
+    const int zones[10] {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    for (int zone : zones) {
+        ui->utmZoneBox->addItem(QString::fromStdString(std::to_string(zone)));
+    }
+
     // Slots
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
     connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
@@ -55,6 +61,7 @@ void MainWindow::handle_cw_process_button() {
      */
 
     UtilityFunctions ut;
+    ShapeEditor shp;
     ErrorWindow er;
     ConfirmDialog confirm;
 
@@ -66,6 +73,8 @@ void MainWindow::handle_cw_process_button() {
     const std::string home_path {ut.get_home_path()};
     const std::string workspace_path {jobinfo.new_workspace_path()};
     const std::wstring workspace_path_ws {std::wstring(workspace_path.begin(), workspace_path.end())};
+
+    const std::string utm_zone {ui->utmZoneBox->currentText().toStdString()};
 
     if (home_path == "PATHNOTFOUND") {  // Something bad happened
         er.set_error_message("Couldn't detect your home path. Contact developer.");
@@ -83,19 +92,57 @@ void MainWindow::handle_cw_process_button() {
 
             ut.move_extracted_files(jobinfo);  // Move files to working directory
             ut.create_directory_recursively(workspace_path_ws);
-            confirm.set_confirmation_message("Workspaces created.");
-            confirm.exec();
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
             std::cout << error_message << std::endl;
             er.set_error_message(error_message);
             er.exec();
         }
+
+        if (utm_zone != "Manual Reprojection") {
+            // Copy files to reprojected directory
+            const std::string reproj_path {jobinfo.find_gis_path() + "\\reprojected"};
+            //ut.copy_files_in_dir(jobinfo.find_gis_path(), reproj_path);
+
+            // Reproject layers
+            for (const auto &file : std::filesystem::directory_iterator(jobinfo.find_gis_path())) {
+                const size_t lastindex {file.path().string().find_last_of(".") + 1};
+                const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+                if (extension == "shp") {
+                    const std::string filename {file.path().filename().string()};
+                    const std::string out_path {reproj_path + "\\" + filename};
+                    if (!ut.file_exists(out_path)) {
+                        std::cout << "Reprojecting " << file.path().string() << std::endl;
+                        OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
+                        shp.reproject(in_layer, std::stoi(utm_zone), out_path);
+                        delete in_layer;
+                    }
+                }
+            }
+
+            // Rename address files
+            for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
+                const std::string filename {file.path().filename().string()};
+
+                // Rename all files with address in the name to addresses.shp (including correct extensions)
+                if (ut.search_string_for_substring(filename, "address")) {
+                    const size_t lastindex {file.path().string().find_last_of(".") + 1};
+                    const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+                    std::cout << "Extension: " << extension << std::endl;
+                    std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
+                }
+            }
+        }   
     } else {
         const std::string error_message {"Not all required fields populated"};
         std::cout << error_message << std::endl;
         er.set_error_message(error_message);
         er.exec();
+    }
+
+    if (zip_path != "FILENOTFOUND") {
+        confirm.set_confirmation_message("Workspaces created.");
+        confirm.exec();
     }
 }
 
@@ -221,4 +268,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-

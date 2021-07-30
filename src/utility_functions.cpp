@@ -262,3 +262,20 @@ bool UtilityFunctions::file_exists(const std::string &path) {
     std::filesystem::exists(path) ? exists = true : exists = false;
     return exists;
 }
+
+void UtilityFunctions::copy_files_in_dir(std::string in_dir, std::string out_dir) {
+    /*
+     * Copies all files in in_dir to out_dir.
+     * @param in_dir: Directory containing files to copy.
+     * @param out_dir: Destination directory.
+     */
+
+    for (const auto & file : std::filesystem::directory_iterator(in_dir)) {
+        std::string filename {file.path().filename().string()};
+        size_t lastindex {filename.find_last_of(".")};
+        const std::string dest_path {out_dir + "\\" + filename};
+        if (!search_string_for_substring(file.path().string(), "reprojected")) {
+            std::filesystem::copy(file.path().string(), dest_path);
+        }
+    }
+}
