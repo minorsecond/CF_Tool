@@ -125,6 +125,15 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>JobIDInput</tabstop>
+  <tabstop>CityInput</tabstop>
+  <tabstop>StateInput</tabstop>
+  <tabstop>utmZoneBox</tabstop>
+  <tabstop>WC_ProcuessButton</tabstop>
+  <tabstop>AC_ProcessButton</tabstop>
+  <tabstop>DA_ProcessButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
