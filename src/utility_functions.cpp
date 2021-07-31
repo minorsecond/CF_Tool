@@ -162,7 +162,7 @@ std::string UtilityFunctions::find_zip_file(Job jobinfo) {
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
-        if (search_string_for_substring(search_path, jobinfo.job_id)) {
+        if (search_string_for_substring(search_path, jobinfo.job_id)  && search_string_for_substring(search_path, ".zip")) {
             return search_path;  //TODO: only find files with .zip in the name
         }
     }
