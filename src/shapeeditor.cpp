@@ -329,8 +329,6 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
 
     // Cleanup
     poLayer->SyncToDisk();
-    delete poLayer;
     GDALClose(poDS);
-    delete coordTrans;
     delete srTo;
 }
