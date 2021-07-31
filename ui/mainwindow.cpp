@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
     connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
     connect(ui->DA_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_da_process_button);
+    connect(ui->NewJobButton, &QPushButton::clicked, this, &MainWindow::new_job_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -142,6 +143,7 @@ void MainWindow::handle_cw_process_button() {
     if (zip_path != "FILENOTFOUND") {
         confirm.set_confirmation_message("Workspaces created.");
         confirm.exec();
+        ui->CW_Done->setText(QString::fromStdString("Done"));
     }
 }
 
@@ -237,6 +239,7 @@ void MainWindow::handle_ac_process_button() {
 
     confirm.set_confirmation_message(completed_message);
     confirm.exec();
+    ui->CA_Done->setText(QString::fromStdString("Done"));
 }
 
 void MainWindow::handle_da_process_button() {
@@ -261,6 +264,21 @@ void MainWindow::handle_da_process_button() {
     ut.zip_files(jobinfo);
     confirm.set_confirmation_message("Created deliverable archive");
     confirm.exec();
+    ui->DA_Done->setText(QString::fromStdString("Done"));
+}
+
+void MainWindow::new_job_button() {
+    /*
+     * Reset inputs for new job
+     */
+
+    ui->JobIDInput->clear();
+    ui->CityInput->clear();
+    ui->StateInput->setCurrentIndex(0);
+    ui->utmZoneBox->setCurrentIndex(0);
+    ui->CW_Done->clear();
+    ui->CA_Done->clear();
+    ui->DA_Done->clear();
 }
 
 MainWindow::~MainWindow()
