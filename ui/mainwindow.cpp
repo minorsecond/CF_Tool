@@ -65,10 +65,7 @@ void MainWindow::handle_cw_process_button() {
     ErrorWindow er;
     ConfirmDialog confirm;
 
-    Job jobinfo;
-    jobinfo.job_id = ui->JobIDInput->text().toStdString();
-    jobinfo.city = ui->CityInput->text().toStdString();
-    jobinfo.state = ui->StateInput->currentText().toStdString();
+    Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
     const std::string home_path {ut.get_home_path()};
     const std::string workspace_path {jobinfo.new_workspace_path()};
@@ -152,12 +149,11 @@ void MainWindow::handle_ac_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     ConfirmDialog confirm;
-    Job jobinfo;
+    Job jobinfo (ui->JobIDInput->text().toStdString());
 
     std::string completed_message {"Attributes created"};
 
     // Handle processing of demand points
-    jobinfo.job_id = ui->JobIDInput->text().toStdString();
     const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
@@ -246,11 +242,7 @@ void MainWindow::handle_da_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     ConfirmDialog confirm;
-    Job jobinfo;
-
-    jobinfo.job_id = ui->JobIDInput->text().toStdString();
-    jobinfo.city = ui->CityInput->text().toStdString();
-    jobinfo.state = ui->StateInput->currentText().toStdString();
+    Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
     if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
         er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
