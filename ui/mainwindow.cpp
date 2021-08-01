@@ -134,7 +134,7 @@ void MainWindow::handle_cw_process_button() {
             er.exec();
         }
     } else {
-        const std::string error_message {"Not all required fields populated"};
+        const std::string error_message {"Error: Not all required fields populated."};
         std::cout << error_message << std::endl;
         er.set_error_message(error_message);
         er.exec();
@@ -242,18 +242,25 @@ void MainWindow::handle_da_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     ConfirmDialog confirm;
+
     Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
-    if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
-        er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
+    if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
+        if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
+            er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
+            er.exec();
+            return;
+        }
+
+        ut.zip_files(jobinfo);
+        confirm.set_confirmation_message("Created deliverable archive");
+        confirm.exec();
+        ui->DA_Done->setText(QString::fromStdString("Done"));
+    } else {
+        er.set_error_message("Error: Not all required fields populated.");
         er.exec();
         return;
     }
-
-    ut.zip_files(jobinfo);
-    confirm.set_confirmation_message("Created deliverable archive");
-    confirm.exec();
-    ui->DA_Done->setText(QString::fromStdString("Done"));
 }
 
 void MainWindow::new_job_button() {

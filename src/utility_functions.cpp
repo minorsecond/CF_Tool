@@ -178,23 +178,26 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
     ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
-    const std::string out_path {jobinfo.new_gis_path()};
-    const std::string reproj_path {out_path + "\\reprojected"};
-    std::cout << "Moving to working dir " << out_path << std::endl;
 
-    // Convert string to ws
-    std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
+    if (jobinfo.job_id != "None" && jobinfo.city != "None") {
+        const std::string out_path {jobinfo.new_gis_path()};
+        const std::string reproj_path {out_path + "\\reprojected"};
+        std::cout << "Moving to working dir " << out_path << std::endl;
 
-    //_wrename(tmp_dir_wt, out_path_wt);
-    try {
-       std::filesystem::rename(tmp_dir, out_path);
-    }  catch (std::filesystem::filesystem_error) {
-        er.set_error_message("Error: path already exists: " + out_path);
-        er.exec();
-        std::cout << out_path << " already exists" << std::endl;
+        // Convert string to ws
+        std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
+
+        //_wrename(tmp_dir_wt, out_path_wt);
+        try {
+           std::filesystem::rename(tmp_dir, out_path);
+        }  catch (std::filesystem::filesystem_error) {
+            er.set_error_message("Error: path already exists: " + out_path);
+            er.exec();
+            std::cout << out_path << " already exists" << std::endl;
+        }
+
+        create_directory_recursively(reproj_path_ws);
     }
-
-    create_directory_recursively(reproj_path_ws);
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
