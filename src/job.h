@@ -6,8 +6,7 @@
 class Job
 {
 public:
-    Job(std::string job_id_val);
-    Job(std::string job_id_val, std::string city_val, std::string state_val);
+    Job(std::string job_id_val = "None", std::string city_val = "None", std::string state_val = "None");
     std::string job_id;
     std::string city;
     std::string state;
