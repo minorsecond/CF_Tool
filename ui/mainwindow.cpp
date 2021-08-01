@@ -39,8 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
                                           "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virgina",
                                           "Washington", "West Virginia", "Wisconsin", "Wyoming"};
     for (const QString &state : states) {
-        ui->WC_StateInput->addItem(state);
-        ui->DA_StateInput->addItem(state);
+        ui->StateInput->addItem(state);
     }
 
     // Populate the UTM zone combobox
@@ -53,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->WC_ProcuessButton, &QPushButton::clicked, this, &MainWindow::handle_cw_process_button);
     connect(ui->AC_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_ac_process_button);
     connect(ui->DA_ProcessButton, &QPushButton::clicked, this, &MainWindow::handle_da_process_button);
+    connect(ui->NewJobButton, &QPushButton::clicked, this, &MainWindow::new_job_button);
 }
 
 void MainWindow::handle_cw_process_button() {
@@ -64,12 +64,11 @@ void MainWindow::handle_cw_process_button() {
     ShapeEditor shp;
     ErrorWindow er;
     ConfirmDialog confirm;
-    bool created_workspace {false};
 
     Job jobinfo;
-    jobinfo.job_id = ui->WC_JobIDInput->text().toStdString();
-    jobinfo.city = ui->WC_CityInput->text().toStdString();
-    jobinfo.state = ui->WC_StateInput->currentText().toStdString();
+    jobinfo.job_id = ui->JobIDInput->text().toStdString();
+    jobinfo.city = ui->CityInput->text().toStdString();
+    jobinfo.state = ui->StateInput->currentText().toStdString();
 
     const std::string home_path {ut.get_home_path()};
     const std::string workspace_path {jobinfo.new_workspace_path()};
@@ -128,10 +127,9 @@ void MainWindow::handle_cw_process_button() {
                     }
                 }
             }
-
             confirm.set_confirmation_message("Workspaces created.");
             confirm.exec();
-
+            ui->CW_Done->setText(QString::fromStdString("Done"));
         } else {
             const std::string error_message {"Couldn't find zip file in downloads directory."};
             std::cout << error_message << std::endl;
@@ -159,7 +157,7 @@ void MainWindow::handle_ac_process_button() {
     std::string completed_message {"Attributes created"};
 
     // Handle processing of demand points
-    jobinfo.job_id = ui->AC_JobIDEntry->text().toStdString();
+    jobinfo.job_id = ui->JobIDInput->text().toStdString();
     const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
@@ -238,6 +236,7 @@ void MainWindow::handle_ac_process_button() {
 
     confirm.set_confirmation_message(completed_message);
     confirm.exec();
+    ui->CA_Done->setText(QString::fromStdString("Done"));
 }
 
 void MainWindow::handle_da_process_button() {
@@ -249,9 +248,9 @@ void MainWindow::handle_da_process_button() {
     ConfirmDialog confirm;
     Job jobinfo;
 
-    jobinfo.job_id = ui->DA_JobIdEntry->text().toStdString();
-    jobinfo.city = ui->DA_CityInput->text().toStdString();
-    jobinfo.state = ui->DA_StateInput->currentText().toStdString();
+    jobinfo.job_id = ui->JobIDInput->text().toStdString();
+    jobinfo.city = ui->CityInput->text().toStdString();
+    jobinfo.state = ui->StateInput->currentText().toStdString();
 
     if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
         er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
@@ -262,6 +261,21 @@ void MainWindow::handle_da_process_button() {
     ut.zip_files(jobinfo);
     confirm.set_confirmation_message("Created deliverable archive");
     confirm.exec();
+    ui->DA_Done->setText(QString::fromStdString("Done"));
+}
+
+void MainWindow::new_job_button() {
+    /*
+     * Reset inputs for new job
+     */
+
+    ui->JobIDInput->clear();
+    ui->CityInput->clear();
+    ui->StateInput->setCurrentIndex(0);
+    ui->utmZoneBox->setCurrentIndex(0);
+    ui->CW_Done->clear();
+    ui->CA_Done->clear();
+    ui->DA_Done->clear();
 }
 
 MainWindow::~MainWindow()
