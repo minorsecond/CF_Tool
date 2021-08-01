@@ -5,13 +5,13 @@
 #include <filesystem>
 #include <iostream>
 
-Job::Job(std::string job_id_val)
-    : job_id{job_id_val} {
-
-}
-
 Job::Job(std::string job_id_val, std::string city_val, std::string state_val)
     : job_id{job_id_val}, city{city_val}, state{state_val} {
+}
+
+Job::Job(std::string job_id_val)
+    : Job {job_id_val, "", ""} {
+
 }
 
 std::string Job::new_gis_path() {
