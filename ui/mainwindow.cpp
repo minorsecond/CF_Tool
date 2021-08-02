@@ -104,9 +104,10 @@ void MainWindow::handle_cw_process_button() {
                         const std::string out_path {reproj_path + "\\" + filename};
                         if (!ut.file_exists(out_path)) {
                             std::cout << "Reprojecting " << file.path().string() << std::endl;
-                            OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
-                            shp.reproject(in_layer, std::stoi(utm_zone), out_path);
-                            delete in_layer;
+                            //OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
+                            std::unique_ptr<OGRLayer> in_layer{ShapeEditor::shapefile_reader(file.path().string())};
+                            shp.reproject(in_layer.get(), std::stoi(utm_zone), out_path);
+                            //delete in_layer;
                         }
                     }
                 }
@@ -186,11 +187,12 @@ void MainWindow::handle_ac_process_button() {
 
 
     if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
-        OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
+        //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
+        std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
 
-        if (ShapeEditor::find_field_index("INCLUDE", demand_points) == -1) {
-            ShapeEditor::create_demand_point_fields(demand_points);
-            ShapeEditor::process_demand_points("include", demand_points);  // Populate INCLUDE, PON_HOMES, and STREETNAME
+        if (ShapeEditor::find_field_index("INCLUDE", demand_points.get()) == -1) {
+            ShapeEditor::create_demand_point_fields(demand_points.get());
+            ShapeEditor::process_demand_points("include", demand_points.get());  // Populate INCLUDE, PON_HOMES, and STREETNAME
             demand_points->SyncToDisk();
         } else {
             er.set_error_message("INCLUDE field already exists in addresses shapefile."
@@ -199,35 +201,43 @@ void MainWindow::handle_ac_process_button() {
             completed_message = "Attributes created. Skipped addresses.";
         }
 
-        delete demand_points;  // delete pointer
+        //delete demand_points;  // delete pointer
     }
 
     if (input_files[1].size() > 0) {  // Access points
-        OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
-        ShapeEditor::process_access_points(access_points);
+        //OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
+        std::unique_ptr<OGRLayer> access_points{ShapeEditor::shapefile_reader(access_points_path)};
+
+        ShapeEditor::process_access_points(access_points.get());
         access_points->SyncToDisk();
-        delete access_points;
+        //delete access_points;
     }
 
     if (input_files[2].size() > 0) {  // Poles
-        OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
-        ShapeEditor::process_poles(poles);
+        //OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
+        std::unique_ptr<OGRLayer> poles{ShapeEditor::shapefile_reader(poles_path)};
+
+        ShapeEditor::process_poles(poles.get());
         poles->SyncToDisk();
-        delete poles;
+        //delete poles;
     }
 
     if (input_files[3].size() > 0) { // Aerials
-        OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
-        ShapeEditor::process_aerial_connections(aerials);
+        //OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
+        std::unique_ptr<OGRLayer> aerials{ShapeEditor::shapefile_reader(aerials_path)};
+
+        ShapeEditor::process_aerial_connections(aerials.get());
         aerials->SyncToDisk();
-        delete aerials;
+        //delete aerials;
     }
 
     if (input_files[4].size() > 0) { // FDT Boundaries
-        OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
-        ShapeEditor::process_fdt_boundaries(fdt_boundary);
+        //OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
+        std::unique_ptr<OGRLayer> fdt_boundary{ShapeEditor::shapefile_reader(fdt_path)};
+
+        ShapeEditor::process_fdt_boundaries(fdt_boundary.get());
         fdt_boundary->SyncToDisk();
-        delete fdt_boundary;
+        //delete fdt_boundary;
     }
 
     confirm.set_confirmation_message(completed_message);
