@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <ogr_feature.h>
 #include <gdal.h>
+#include <memory>
 
 ShapeEditor::ShapeEditor() {};
 
@@ -300,17 +301,18 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
 
     // Get projection data
     OGRSpatialReference *srFrom {in_layer->GetSpatialRef()};
-    OGRSpatialReference *srTo = new OGRSpatialReference;
+    //OGRSpatialReference *srTo = new OGRSpatialReference;
+    auto srTo = std::make_unique<OGRSpatialReference>();
 
     std::cout << "Converting to EPSG: " << crs << std::endl;
     srTo->importFromEPSG(crs);
-    OGRCoordinateTransformation *coordTrans {OGRCreateCoordinateTransformation(srFrom, srTo)};
+    OGRCoordinateTransformation *coordTrans {OGRCreateCoordinateTransformation(srFrom, srTo.get())};
 
     // Create new layer
     GDALDataset *poDS {nullptr};
     poDS = poDriver->Create(path.c_str(), 0, 0, 0, GDT_Unknown, NULL);
     OGRLayer *poLayer {nullptr};
-    poLayer = poDS->CreateLayer("Reprojected", srTo, wkbUnknown, NULL);
+    poLayer = poDS->CreateLayer("Reprojected", srTo.get(), wkbUnknown, NULL);
     auto lyr_def {in_layer->GetLayerDefn()};
 
     // Add attribute table
@@ -330,5 +332,5 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     // Cleanup
     poLayer->SyncToDisk();
     GDALClose(poDS);
-    delete srTo;
+    //delete srTo;
 }
