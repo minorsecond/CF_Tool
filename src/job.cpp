@@ -9,6 +9,30 @@ Job::Job(std::string job_id_val, std::string city_val, std::string state_val)
     : job_id{job_id_val}, city{city_val}, state{state_val} {
 }
 
+std::string Job::get_job_id() const {
+    /*
+     * Gets the job ID
+     */
+
+    return job_id;
+}
+
+std::string Job::get_city() const {
+    /*
+     * Gets the city name
+     */
+
+    return city;
+}
+
+std::string Job::get_state() const {
+    /*
+     * Gets the state
+     */
+
+    return state;
+}
+
 std::string Job::new_gis_path() const {
     /*
      * Gets the GIS working path

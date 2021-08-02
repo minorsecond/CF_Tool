@@ -81,7 +81,7 @@ void MainWindow::handle_cw_process_button() {
 
     std::string zip_path {ut.find_zip_file(jobinfo)};
 
-    if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
+    if (!jobinfo.get_job_id().empty() && !jobinfo.get_city().empty() && !jobinfo.get_state().empty()) {
         // Extract files to C:\Users\USERNAME\Downloads\_tmp
         if (zip_path != "FILENOTFOUND") {
             ut.build_working_dirs(jobinfo);
@@ -158,7 +158,7 @@ void MainWindow::handle_ac_process_button() {
     const std::string gis_path {jobinfo.find_gis_path()};
 
     if (gis_path == "FILENOTFOUND") {
-        er.set_error_message("Error: could not find directory for job # " + jobinfo.job_id);
+        er.set_error_message("Error: could not find directory for job # " + jobinfo.get_job_id());
         er.exec();
         return;
     }
@@ -255,9 +255,9 @@ void MainWindow::handle_da_process_button() {
 
     const Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
-    if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
+    if (!jobinfo.get_job_id().empty() && !jobinfo.get_city().empty() && !jobinfo.get_state().empty()) {
         if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
-            er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.job_id);
+            er.set_error_message("Warning: could not find workspace path for job # " + jobinfo.get_job_id());
             er.exec();
             return;
         }
