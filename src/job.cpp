@@ -9,7 +9,7 @@ Job::Job(std::string job_id_val, std::string city_val, std::string state_val)
     : job_id{job_id_val}, city{city_val}, state{state_val} {
 }
 
-std::string Job::new_gis_path() {
+std::string Job::new_gis_path() const {
     /*
      * Gets the GIS working path
      */
@@ -23,7 +23,7 @@ std::string Job::new_gis_path() {
     return gis_path;
 }
 
-std::string Job::new_workspace_path() {
+std::string Job::new_workspace_path() const {
     /*
      * Generate new workspace path
      */
@@ -33,7 +33,7 @@ std::string Job::new_workspace_path() {
     return ut.get_home_path() + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str();
 }
 
-std::string Job::get_workspace_path() {
+std::string Job::get_workspace_path() const {
     /*
      * Gets the Comsof workspace path
      */
@@ -49,7 +49,7 @@ std::string Job::get_workspace_path() {
     return "PATHNOTFOUND";
 }
 
-std::string Job::get_location_path() {
+std::string Job::get_location_path() const {
     /*
      * Get the city state path located within the documents directory
      */
@@ -59,7 +59,7 @@ std::string Job::get_location_path() {
     return home_path + "\\Documents\\Comsof_Jobs\\" + state.c_str() + "\\" + city.c_str();
 }
 
-std::string Job::find_gis_path() {
+std::string Job::find_gis_path() const {
     /*
      * Finds path to GIS directory inside documents directory
      * @param job_number: The job number to search for
@@ -87,7 +87,7 @@ std::string Job::find_gis_path() {
     return "FILENOTFOUND";
 }
 
-std::string Job::get_deliverable_path() {
+std::string Job::get_deliverable_path() const {
     /*
      * Get path to deliverable
      */

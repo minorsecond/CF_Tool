@@ -10,12 +10,12 @@ public:
     std::string job_id;
     std::string city;
     std::string state;
-    std::string get_location_path();
-    std::string new_gis_path();
-    std::string find_gis_path();
-    std::string new_workspace_path();
-    std::string get_workspace_path();
-    std::string get_deliverable_path();
+    std::string get_location_path() const;
+    std::string new_gis_path() const;
+    std::string find_gis_path() const;
+    std::string new_workspace_path() const;
+    std::string get_workspace_path() const;
+    std::string get_deliverable_path() const;
 };
 
 #endif // JOB_H

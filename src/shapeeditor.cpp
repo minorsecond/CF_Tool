@@ -18,10 +18,9 @@ OGRLayer* ShapeEditor::shapefile_reader(const std::string path) {
     GDALDataset *poDataset;
     std::cout << "Reading layer from shapefile " + path << std::endl;
     GDALAllRegister();
-   // poDataset = (GDALDataset *) GDALOpen(path.c_str(), GA_ReadOnly);
     poDataset = (GDALDataset *) GDALOpenEx(path.c_str(), GDAL_OF_ALL | GDAL_OF_UPDATE, NULL, NULL, NULL);
     OGRLayer *layer {poDataset->GetLayer(0)};
-    //OGRLayer *layer {nullptr};
+
     return layer;
 }
 

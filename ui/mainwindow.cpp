@@ -65,7 +65,7 @@ void MainWindow::handle_cw_process_button() {
     ErrorWindow er;
     ConfirmDialog confirm;
 
-    Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
+    const Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
     const std::string home_path {ut.get_home_path()};
     const std::string workspace_path {jobinfo.new_workspace_path()};
@@ -150,7 +150,7 @@ void MainWindow::handle_ac_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     ConfirmDialog confirm;
-    Job jobinfo (ui->JobIDInput->text().toStdString());
+    const Job jobinfo (ui->JobIDInput->text().toStdString());
 
     std::string completed_message {"Attributes created"};
 
@@ -253,7 +253,7 @@ void MainWindow::handle_da_process_button() {
     ErrorWindow er;
     ConfirmDialog confirm;
 
-    Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
+    const Job jobinfo (ui->JobIDInput->text().toStdString(), ui->CityInput->text().toStdString(), ui->StateInput->currentText().toStdString());
 
     if (!jobinfo.job_id.empty() && !jobinfo.city.empty() && !jobinfo.state.empty()) {
         if (!std::filesystem::exists(jobinfo.get_workspace_path())) {
