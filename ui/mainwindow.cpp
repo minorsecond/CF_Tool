@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setFixedHeight(this->height());
     this->setFixedWidth(this->width());
 
+    ui->NewJobButton->setDisabled(true);
+
     // Create working directories on launch
     UtilityFunctions ut;
     ut.create_directories();
@@ -134,6 +136,8 @@ void MainWindow::handle_cw_process_button() {
             er.set_error_message(error_message);
             er.exec();
         }
+
+        ui->NewJobButton->setEnabled(true);
     } else {
         const std::string error_message {"Error: Not all required fields populated."};
         std::cout << error_message << std::endl;
@@ -246,6 +250,7 @@ void MainWindow::handle_ac_process_button() {
         confirm.set_confirmation_message(completed_message);
         confirm.exec();
         ui->CA_Done->setText(QString::fromStdString("Done"));
+        ui->NewJobButton->setEnabled(true);
     } else {
         er.set_error_message("Error: Job ID not entered.");
         er.exec();
@@ -274,6 +279,7 @@ void MainWindow::handle_da_process_button() {
         confirm.set_confirmation_message("Created deliverable archive");
         confirm.exec();
         ui->DA_Done->setText(QString::fromStdString("Done"));
+        ui->NewJobButton->setEnabled(true);
     } else {
         er.set_error_message("Error: Not all required fields populated.");
         er.exec();
@@ -293,6 +299,7 @@ void MainWindow::new_job_button() {
     ui->CW_Done->clear();
     ui->CA_Done->clear();
     ui->DA_Done->clear();
+    ui->NewJobButton->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
