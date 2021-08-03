@@ -150,99 +150,107 @@ void MainWindow::handle_ac_process_button() {
     UtilityFunctions ut;
     ErrorWindow er;
     ConfirmDialog confirm;
+
     const Job jobinfo (ui->JobIDInput->text().toStdString());
 
-    std::string completed_message {"Attributes created"};
+    if (!jobinfo.get_job_id().empty()) {
 
-    // Handle processing of demand points
-    const std::string gis_path {jobinfo.find_gis_path()};
+        std::string completed_message {"Attributes created"};
 
-    if (gis_path == "FILENOTFOUND") {
-        er.set_error_message("Error: could not find directory for job # " + jobinfo.get_job_id());
+        // Handle processing of demand points
+        const std::string gis_path {jobinfo.find_gis_path()};
+
+        if (gis_path == "FILENOTFOUND") {
+            er.set_error_message("Error: could not find directory for job # " + jobinfo.get_job_id());
+            er.exec();
+            return;
+        }
+
+        const std::string reproj_path {gis_path + "\\reprojected"};
+        const std::string demand_points_path {reproj_path + "\\addresses.dbf"};
+        const std::string access_points_path {reproj_path + "\\access_point.dbf"};
+        const std::string poles_path {reproj_path + "\\pole.dbf"};
+        const std::string aerials_path {reproj_path + "\\span_length.dbf"};
+        const std::string fdt_path {reproj_path + "\\fdt_boundary.dbf"};
+
+        std::vector<std::string> input_files {demand_points_path, access_points_path,
+                                             poles_path, aerials_path, fdt_path};
+
+        // Check if input file exists. If it doesn't, set the path string to "". This will later be checked to
+        // ensure that GDAL doesn't attempt to load a nonexisting file.
+        size_t vector_counter {0};
+        for (std::string path : input_files) {
+            if (!ut.file_exists(path)) {
+                er.set_error_message("Warning: could not find " + path);
+                er.exec();
+                input_files.at(vector_counter) = "";
+            }
+            vector_counter++;
+        }
+
+
+        if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
+            //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
+            std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
+
+            if (ShapeEditor::find_field_index("INCLUDE", demand_points.get()) == -1) {
+                ShapeEditor::create_demand_point_fields(demand_points.get());
+                ShapeEditor::process_demand_points("include", demand_points.get());  // Populate INCLUDE, PON_HOMES, and STREETNAME
+                demand_points->SyncToDisk();
+            } else {
+                er.set_error_message("INCLUDE field already exists in addresses shapefile."
+                    " Recreate shapefile in reprojected directory and rerun to process.");
+                er.exec();
+                completed_message = "Attributes created. Skipped addresses.";
+            }
+
+            //delete demand_points;  // delete pointer
+        }
+
+        if (input_files[1].size() > 0) {  // Access points
+            //OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
+            std::unique_ptr<OGRLayer> access_points{ShapeEditor::shapefile_reader(access_points_path)};
+
+            ShapeEditor::process_access_points(access_points.get());
+            access_points->SyncToDisk();
+            //delete access_points;
+        }
+
+        if (input_files[2].size() > 0) {  // Poles
+            //OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
+            std::unique_ptr<OGRLayer> poles{ShapeEditor::shapefile_reader(poles_path)};
+
+            ShapeEditor::process_poles(poles.get());
+            poles->SyncToDisk();
+            //delete poles;
+        }
+
+        if (input_files[3].size() > 0) { // Aerials
+            //OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
+            std::unique_ptr<OGRLayer> aerials{ShapeEditor::shapefile_reader(aerials_path)};
+
+            ShapeEditor::process_aerial_connections(aerials.get());
+            aerials->SyncToDisk();
+            //delete aerials;
+        }
+
+        if (input_files[4].size() > 0) { // FDT Boundaries
+            //OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
+            std::unique_ptr<OGRLayer> fdt_boundary{ShapeEditor::shapefile_reader(fdt_path)};
+
+            ShapeEditor::process_fdt_boundaries(fdt_boundary.get());
+            fdt_boundary->SyncToDisk();
+            //delete fdt_boundary;
+        }
+
+        confirm.set_confirmation_message(completed_message);
+        confirm.exec();
+        ui->CA_Done->setText(QString::fromStdString("Done"));
+    } else {
+        er.set_error_message("Error: Job ID not entered.");
         er.exec();
         return;
     }
-
-    const std::string reproj_path {gis_path + "\\reprojected"};
-    const std::string demand_points_path {reproj_path + "\\addresses.dbf"};
-    const std::string access_points_path {reproj_path + "\\access_point.dbf"};
-    const std::string poles_path {reproj_path + "\\pole.dbf"};
-    const std::string aerials_path {reproj_path + "\\span_length.dbf"};
-    const std::string fdt_path {reproj_path + "\\fdt_boundary.dbf"};
-
-    std::vector<std::string> input_files {demand_points_path, access_points_path,
-                                         poles_path, aerials_path, fdt_path};
-
-    // Check if input file exists. If it doesn't, set the path string to "". This will later be checked to
-    // ensure that GDAL doesn't attempt to load a nonexisting file.
-    size_t vector_counter {0};
-    for (std::string path : input_files) {
-        if (!ut.file_exists(path)) {
-            er.set_error_message("Warning: could not find " + path);
-            er.exec();
-            input_files.at(vector_counter) = "";
-        }
-        vector_counter++;
-    }
-
-
-    if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
-        //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
-        std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
-
-        if (ShapeEditor::find_field_index("INCLUDE", demand_points.get()) == -1) {
-            ShapeEditor::create_demand_point_fields(demand_points.get());
-            ShapeEditor::process_demand_points("include", demand_points.get());  // Populate INCLUDE, PON_HOMES, and STREETNAME
-            demand_points->SyncToDisk();
-        } else {
-            er.set_error_message("INCLUDE field already exists in addresses shapefile."
-                " Recreate shapefile in reprojected directory and rerun to process.");
-            er.exec();
-            completed_message = "Attributes created. Skipped addresses.";
-        }
-
-        //delete demand_points;  // delete pointer
-    }
-
-    if (input_files[1].size() > 0) {  // Access points
-        //OGRLayer *access_points {ShapeEditor::shapefile_reader(access_points_path)};
-        std::unique_ptr<OGRLayer> access_points{ShapeEditor::shapefile_reader(access_points_path)};
-
-        ShapeEditor::process_access_points(access_points.get());
-        access_points->SyncToDisk();
-        //delete access_points;
-    }
-
-    if (input_files[2].size() > 0) {  // Poles
-        //OGRLayer *poles {ShapeEditor::shapefile_reader(poles_path)};
-        std::unique_ptr<OGRLayer> poles{ShapeEditor::shapefile_reader(poles_path)};
-
-        ShapeEditor::process_poles(poles.get());
-        poles->SyncToDisk();
-        //delete poles;
-    }
-
-    if (input_files[3].size() > 0) { // Aerials
-        //OGRLayer *aerials {ShapeEditor::shapefile_reader(aerials_path)};
-        std::unique_ptr<OGRLayer> aerials{ShapeEditor::shapefile_reader(aerials_path)};
-
-        ShapeEditor::process_aerial_connections(aerials.get());
-        aerials->SyncToDisk();
-        //delete aerials;
-    }
-
-    if (input_files[4].size() > 0) { // FDT Boundaries
-        //OGRLayer *fdt_boundary {ShapeEditor::shapefile_reader(fdt_path)};
-        std::unique_ptr<OGRLayer> fdt_boundary{ShapeEditor::shapefile_reader(fdt_path)};
-
-        ShapeEditor::process_fdt_boundaries(fdt_boundary.get());
-        fdt_boundary->SyncToDisk();
-        //delete fdt_boundary;
-    }
-
-    confirm.set_confirmation_message(completed_message);
-    confirm.exec();
-    ui->CA_Done->setText(QString::fromStdString("Done"));
 }
 
 void MainWindow::handle_da_process_button() {
