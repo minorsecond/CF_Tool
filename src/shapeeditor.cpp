@@ -132,7 +132,13 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
-        const std::string new_type {"HANDHOLE{" + type + "}"};
+        const std::string size {feature->GetFieldAsString("structur_2")};
+        std::string new_type {};
+        if (!size.empty()) {
+            new_type = "HANDHOLE{" + type + '-' + size + '}';
+        } else {
+             new_type = "HANDHOLE{" + type + "}";
+        }
         feature->SetField("TYPE", new_type.c_str());
         in_layer->SetFeature(feature.release());
     }
