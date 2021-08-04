@@ -132,13 +132,7 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
-        const std::string size {feature->GetFieldAsString("structur_2")};
-        std::string new_type {};
-        if (!size.empty()) {
-            new_type = "HANDHOLE{" + type + '-' + size + '}';
-        } else {
-             new_type = "HANDHOLE{" + type + "}";
-        }
+        const std::string new_type {"HANDHOLE{" + type + "}"};
         feature->SetField("TYPE", new_type.c_str());
         in_layer->SetFeature(feature.release());
     }
@@ -153,6 +147,8 @@ void ShapeEditor::process_poles(OGRLayer *in_layer) {
     OGRFieldDefn type_defn("EXISTING", OFTString);
     type_defn.SetWidth(254);
     in_layer->CreateField(&type_defn);
+
+    /*
     bool include_field_exists {false};
     int include_field_id {-1};
 
@@ -170,8 +166,10 @@ void ShapeEditor::process_poles(OGRLayer *in_layer) {
             include_field_id = find_field_index("Include", in_layer);
             std::cout << "Found poles Include field" << std::endl;
     }
+    */
 
     for (OGRFeatureUniquePtr &feature : in_layer) {
+        /*
         bool deleted_feature {false};
         if (include_field_exists == true) {
             std::string attr_value {feature->GetFieldAsString(include_field_id)};
@@ -183,11 +181,10 @@ void ShapeEditor::process_poles(OGRLayer *in_layer) {
                 delete_result = true;
             }
         }
+        */
 
-        if (!deleted_feature) {
-            feature->SetField("EXISTING", "T");
-            in_layer->SetFeature(feature.release());
-        }
+        feature->SetField("EXISTING", "T");
+        in_layer->SetFeature(feature.release());
     }
 }
 
