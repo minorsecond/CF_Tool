@@ -3,12 +3,37 @@
 
 #include <string>
 #include <filesystem>
+#include <iostream>
 
-Job::Job()
-{
+Job::Job(std::string job_id_val, std::string city_val, std::string state_val)
+    : job_id{job_id_val}, city{city_val}, state{state_val} {
 }
 
-std::string Job::new_gis_path() {
+std::string Job::get_job_id() const {
+    /*
+     * Gets the job ID
+     */
+
+    return job_id;
+}
+
+std::string Job::get_city() const {
+    /*
+     * Gets the city name
+     */
+
+    return city;
+}
+
+std::string Job::get_state() const {
+    /*
+     * Gets the state
+     */
+
+    return state;
+}
+
+std::string Job::new_gis_path() const {
     /*
      * Gets the GIS working path
      */
@@ -22,7 +47,7 @@ std::string Job::new_gis_path() {
     return gis_path;
 }
 
-std::string Job::new_workspace_path() {
+std::string Job::new_workspace_path() const {
     /*
      * Generate new workspace path
      */
@@ -32,7 +57,7 @@ std::string Job::new_workspace_path() {
     return ut.get_home_path() + "\\Desktop\\Workspaces\\" + state + "\\" + city + "\\" + date.c_str() + "-" + job_id.c_str();
 }
 
-std::string Job::get_workspace_path() {
+std::string Job::get_workspace_path() const {
     /*
      * Gets the Comsof workspace path
      */
@@ -48,7 +73,7 @@ std::string Job::get_workspace_path() {
     return "PATHNOTFOUND";
 }
 
-std::string Job::get_location_path() {
+std::string Job::get_location_path() const {
     /*
      * Get the city state path located within the documents directory
      */
@@ -58,7 +83,7 @@ std::string Job::get_location_path() {
     return home_path + "\\Documents\\Comsof_Jobs\\" + state.c_str() + "\\" + city.c_str();
 }
 
-std::string Job::find_gis_path() {
+std::string Job::find_gis_path() const {
     /*
      * Finds path to GIS directory inside documents directory
      * @param job_number: The job number to search for
@@ -70,17 +95,14 @@ std::string Job::find_gis_path() {
      * @param job_number: Job number to search for
      */
     UtilityFunctions ut;
-    const std::string download_path {ut.get_home_path() + "\\Documents\\"};
+    const std::string download_path {ut.get_home_path() + "\\Documents\\Comsof_Jobs"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
-        if (ut.search_string_for_substring(entry.path().string(), "Comsof_Jobs")) {
-            for (const auto & state : std::filesystem::directory_iterator(entry.path())) {  // Comsof Jobs level
-                for (const auto & city : std::filesystem::directory_iterator(state.path())) {  // City level
-                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {
-                        std::string search_path = job.path().string();
-                        if (ut.search_string_for_substring(search_path, job_id)) {
-                            return search_path;  //TODO: only find files with .zip in the name
-                        }
-                    }
+        std::cout << entry.path().string() << std::endl;
+        for (const auto & city : std::filesystem::directory_iterator(entry.path())) {  // City level
+            for (const auto & job : std::filesystem::directory_iterator(city.path())) {
+                std::string search_path = job.path().string();
+                if (ut.search_string_for_substring(search_path, job_id)) {
+                    return search_path;  //TODO: only find files with .zip in the name
                 }
             }
         }
@@ -89,7 +111,7 @@ std::string Job::find_gis_path() {
     return "FILENOTFOUND";
 }
 
-std::string Job::get_deliverable_path() {
+std::string Job::get_deliverable_path() const {
     /*
      * Get path to deliverable
      */

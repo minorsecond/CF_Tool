@@ -95,7 +95,7 @@ void UtilityFunctions::zip_files(Job jobinfo) {
     const std::string city_state_path {jobinfo.get_deliverable_path()};
     const std::string tmp_path {city_state_path + "\\tmp"};
     const std::string const_base_path {tmp_path};
-    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.job_id.c_str() + ".zip"};
+    const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.get_job_id().c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
     std::vector<std::string> deliverable_files {"OUT_AccessStructures",
                                                 "OUT_Closures",
@@ -114,7 +114,7 @@ void UtilityFunctions::zip_files(Job jobinfo) {
                 size_t lastindex {filename.find_last_of(".")};
                 std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
-                    filename.insert(3, "_" + jobinfo.job_id);
+                    filename.insert(3, "_" + jobinfo.get_job_id());
                     const std::string out_path {const_base_path + "\\" + filename};
                     try {
                         std::filesystem::copy(file.path().string(), out_path); // Copy files to temp dir
@@ -162,7 +162,7 @@ std::string UtilityFunctions::find_zip_file(Job jobinfo) {
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
         std::string search_path = entry.path().string();
-        if (search_string_for_substring(search_path, jobinfo.job_id)) {
+        if (search_string_for_substring(search_path, jobinfo.get_job_id())  && search_string_for_substring(search_path, ".zip")) {
             return search_path;  //TODO: only find files with .zip in the name
         }
     }
@@ -178,23 +178,26 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
     ErrorWindow er;
     const std::string home {get_home_path()};
     const std::string tmp_dir {home + "\\Downloads\\tmp"};
-    const std::string out_path {jobinfo.new_gis_path()};
-    const std::string reproj_path {out_path + "\\reprojected"};
-    std::cout << "Moving to working dir " << out_path << std::endl;
 
-    // Convert string to ws
-    std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
+    if (!jobinfo.get_job_id().empty() && !jobinfo.get_city().empty()) {
+        const std::string out_path {jobinfo.new_gis_path()};
+        const std::string reproj_path {out_path + "\\reprojected"};
+        std::cout << "Moving to working dir " << out_path << std::endl;
 
-    //_wrename(tmp_dir_wt, out_path_wt);
-    try {
-       std::filesystem::rename(tmp_dir, out_path);
-    }  catch (std::filesystem::filesystem_error) {
-        er.set_error_message("Error: path already exists: " + out_path);
-        er.exec();
-        std::cout << out_path << " already exists" << std::endl;
+        // Convert string to ws
+        std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
+
+        //_wrename(tmp_dir_wt, out_path_wt);
+        try {
+           std::filesystem::rename(tmp_dir, out_path);
+        }  catch (std::filesystem::filesystem_error) {
+            er.set_error_message("Error: path already exists: " + out_path);
+            er.exec();
+            std::cout << out_path << " already exists" << std::endl;
+        }
+
+        create_directory_recursively(reproj_path_ws);
     }
-
-    create_directory_recursively(reproj_path_ws);
 }
 
 void UtilityFunctions::create_directory_recursively(const std::wstring &directory) {
@@ -261,4 +264,21 @@ bool UtilityFunctions::file_exists(const std::string &path) {
     bool exists {false};
     std::filesystem::exists(path) ? exists = true : exists = false;
     return exists;
+}
+
+void UtilityFunctions::copy_files_in_dir(std::string in_dir, std::string out_dir) {
+    /*
+     * Copies all files in in_dir to out_dir.
+     * @param in_dir: Directory containing files to copy.
+     * @param out_dir: Destination directory.
+     */
+
+    for (const auto & file : std::filesystem::directory_iterator(in_dir)) {
+        std::string filename {file.path().filename().string()};
+        size_t lastindex {filename.find_last_of(".")};
+        const std::string dest_path {out_dir + "\\" + filename};
+        if (!search_string_for_substring(file.path().string(), "reprojected")) {
+            std::filesystem::copy(file.path().string(), dest_path);
+        }
+    }
 }

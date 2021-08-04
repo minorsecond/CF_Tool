@@ -6,150 +6,140 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>509</width>
-    <height>257</height>
+    <width>549</width>
+    <height>280</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>CF Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="mainTab">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>6</x>
-      <y>9</y>
+      <x>10</x>
+      <y>0</y>
       <width>491</width>
-      <height>221</height>
+      <height>251</height>
      </rect>
     </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="step1">
-     <attribute name="title">
-      <string>Workspace Creation</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="WC_JobIDInput"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Job ID</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>State</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="WC_StateInput"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="WC_CityInput"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>City</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="WC_ProcuessButton">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>City</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="utmZoneBox">
+       <item>
         <property name="text">
-         <string>Process</string>
+         <string>Manual Reprojection</string>
         </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="step2">
-     <attribute name="title">
-      <string>Attribute Creation</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="1">
-       <widget class="QPushButton" name="AC_ProcessButton">
-        <property name="text">
-         <string>Process</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="AC_JobIDEntry"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="AC_JobIDLabel">
-          <property name="text">
-           <string>Job ID</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="tab">
-     <attribute name="title">
-      <string>Deliverable Archiving</string>
-     </attribute>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="4" column="1">
-       <widget class="QPushButton" name="DA_ProcessButton">
-        <property name="text">
-         <string>Process</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0">
-         <widget class="QLabel" name="DA_JobIdLabel">
-          <property name="text">
-           <string>Job ID</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="DA_JobIdEntry"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="DA_CityInput"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="DA_CityLabel">
-          <property name="text">
-           <string>City</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="DA_StateLabel">
-          <property name="text">
-           <string>State</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="DA_StateInput"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+       </item>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="DA_Done">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QPushButton" name="DA_ProcessButton">
+       <property name="text">
+        <string>Create Deliverable Archive</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="CityInput"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="CW_Done">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="JobIDInput"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="utmZoneLabel">
+       <property name="text">
+        <string>Zone</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>State</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Job ID</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="6" column="1">
+      <widget class="QPushButton" name="WC_ProcuessButton">
+       <property name="text">
+        <string>Create Workspace</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QPushButton" name="AC_ProcessButton">
+       <property name="text">
+        <string>Create Attributes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="StateInput"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="CA_Done">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QPushButton" name="NewJobButton">
+       <property name="text">
+        <string>New Job</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -157,23 +147,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>509</width>
+     <width>549</width>
      <height>21</height>
     </rect>
    </property>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>mainTab</tabstop>
-  <tabstop>WC_JobIDInput</tabstop>
-  <tabstop>WC_CityInput</tabstop>
-  <tabstop>WC_StateInput</tabstop>
+  <tabstop>JobIDInput</tabstop>
+  <tabstop>CityInput</tabstop>
+  <tabstop>StateInput</tabstop>
+  <tabstop>utmZoneBox</tabstop>
   <tabstop>WC_ProcuessButton</tabstop>
-  <tabstop>AC_JobIDEntry</tabstop>
   <tabstop>AC_ProcessButton</tabstop>
-  <tabstop>DA_JobIdEntry</tabstop>
-  <tabstop>DA_CityInput</tabstop>
-  <tabstop>DA_StateInput</tabstop>
   <tabstop>DA_ProcessButton</tabstop>
  </tabstops>
  <resources/>
