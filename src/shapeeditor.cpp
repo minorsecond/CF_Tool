@@ -275,18 +275,6 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     // Convert UTM zone integer into the EPSG code. This map will be updated
     // as new areas become active. the N specifier, e.g. 10N, is taken for
     // granted.
-    std::map<int, int> utm_zones {
-        {10, 26910},
-        {11, 26911},
-        {12, 26912},
-        {13, 26913},
-        {14, 26914},
-        {15, 26915},
-        {16, 26916},
-        {17, 26917},
-        {18, 26918},
-        {19, 26919}
-    };
 
     // Proj library path
     const std::string ppath {std::filesystem::current_path().string()};
