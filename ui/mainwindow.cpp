@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // Populate the UTM zone combobox
-    for (std::map<int, int>::iterator iter {utm_zones.begin()}; iter != utm_zones.end(); iter++) {
+    for (std::map<int, int>::const_iterator iter {utm_zones.begin()}; iter != utm_zones.end(); iter++) {
         ui->utmZoneBox->addItem(QString::fromStdString(std::to_string(iter->first)));
     }
 
