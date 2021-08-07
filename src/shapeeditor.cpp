@@ -29,9 +29,9 @@ OGRLayer* ShapeEditor::create_demand_point_fields(OGRLayer *dp_layer) {
      * Add PON_HOMES and STREETNAME fields to demand points layer
      * @param dp_layer: The demand points layer to add fields to
      */
-    OGRFieldDefn pon_homes_field("PON_HOMES", OFTInteger);
+    //OGRFieldDefn pon_homes_field("PON_HOMES", OFTInteger);
     OGRFieldDefn streetname_field("STREETNAME", OFTString);
-    dp_layer->CreateField(&pon_homes_field);
+    //dp_layer->CreateField(&pon_homes_field);
     dp_layer->CreateField(&streetname_field);
 
     return dp_layer;
@@ -45,26 +45,44 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
      */
     ErrorWindow er;
     const std::string input_streetname_field_name {"street_nam"};
-    int field_idx {find_field_index(name_to_change, in_layer)};
-    std::cout << "Index: " << field_idx << std::endl;
+    int include_field_idx {find_field_index("include", in_layer)};  // Find include field. Returns -1 if "include" isn't present
+    std::cout << "Index: " << include_field_idx << std::endl;
 
-    if (field_idx == -1) {
+    if (include_field_idx == -1) {
         er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Defaulting to True.");
         er.exec();
     }
 
-    if (field_idx != -1) {
-        OGRFieldDefn tmp_field_def("tmp", OFTString);
-        in_layer->CreateField(&tmp_field_def);
+    // Create tmp field to store original include field and populate it with original include values
+    // This is done to switch from the lowercase "include" field to uppercase "INCLUDE"
+    if (include_field_idx != -1) {
+        OGRFieldDefn tmp_include_field_def("tmp_inc", OFTString);
+        in_layer->CreateField(&tmp_include_field_def);
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
-            std::string include_attr {feature->GetFieldAsString(field_idx)};
-            std::cout << include_attr << std::endl;
-            feature->SetField("tmp", feature->GetFieldAsString(field_idx));
+            std::string include_attr {feature->GetFieldAsString(include_field_idx)};
+            std::cout << "Include attr: " << include_attr << std::endl;
+            feature->SetField("tmp_inc", include_attr.c_str());
             in_layer->SetFeature(feature.release());
         }
-        std::cout << "Deleting include field at index " << field_idx << std::endl;
-        in_layer->DeleteField(field_idx);
+        std::cout << "Deleting include field at index " << include_field_idx << std::endl;
+        in_layer->DeleteField(include_field_idx);  // Delete original include field
+    }
+
+    // Create tmp field to store original pon_homes values, just as we did for the inlude field
+    int pon_homes_field_idx {find_field_index("pon_homes", in_layer)};  // Find pon_homes field
+    if (pon_homes_field_idx != -1) {
+        OGRFieldDefn tmp_pon_homes_field_defn("tmp_ph", OFTInteger);
+        in_layer->CreateField(&tmp_pon_homes_field_defn);
+
+        for (OGRFeatureUniquePtr &feature : in_layer) {
+            int ph_attr {feature->GetFieldAsInteger(pon_homes_field_idx)};
+            std::cout << "PH Attr: " << feature->GetFieldAsString(pon_homes_field_idx) << std::endl;
+            feature->SetField("tmp_ph", ph_attr);
+            in_layer->SetFeature(feature.release());
+        }
+        std::cout << "Deleting pon_homes field at index " << pon_homes_field_idx << std::endl;
+        in_layer->DeleteField(pon_homes_field_idx);
     }
 
     // Find street name field
@@ -77,22 +95,38 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         }
     }
 
-    // Add the uppercase field
-    std::string upper_name {uppercase_string(name_to_change)};
-    OGRFieldDefn upper_name_field(upper_name.c_str(), OFTString);
-    in_layer->CreateField(&upper_name_field);
+    // Add the new fields
+    OGRFieldDefn new_include_Field("INCLUDE", OFTString);
+    OGRFieldDefn new_pon_homes_field("PON_HOMES", OFTString);
+    OGRFieldDefn streetname_field("STREETNAME", OFTString);
+    in_layer->CreateField(&new_include_Field);
+    in_layer->CreateField(&new_pon_homes_field);
+    in_layer->CreateField(&streetname_field);
+
 
     in_layer->ResetReading();  // Restart reading layer at beginning
-    std::string tmp_value {};
 
     // Populate new field
     for (OGRFeatureUniquePtr &feature : in_layer) {
-        if (field_idx != -1) {
-            tmp_value = feature->GetFieldAsString("tmp");
+        std::string tmp_include_value {};
+        int tmp_ph_value {};
+
+        // Populate new INCLUDE field with values in tmp_include field
+        if (include_field_idx != -1) {
+            tmp_include_value = feature->GetFieldAsString("tmp_inc");
+            std::cout << "TMP INCLUDE VAL: " << tmp_include_value << std::endl;
         } else {
-            tmp_value = "T";
+            tmp_include_value = "T";
         }
-        feature->SetField(upper_name.c_str(), tmp_value.c_str());
+        feature->SetField("INCLUDE", tmp_include_value.c_str());
+
+        // Populate new PON_HOMES field with values in tmp_pon_homes field
+        if (pon_homes_field_idx != -1) {
+            tmp_ph_value = feature->GetFieldAsInteger("tmp_ph");
+        } else {
+            tmp_ph_value = 1;
+        }
+        feature->SetField("PON_HOMES", tmp_ph_value);
 
         std::string streetname {};
         if (streetname_idx != -1) {
@@ -102,14 +136,19 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         }
 
         feature->SetField("STREETNAME", streetname.c_str());
-        feature->SetField("PON_HOMES", 1);
         in_layer->SetFeature(feature.release());
     }
 
-    if (field_idx != -1) {
-        int tmp_index {find_field_index("tmp", in_layer)};
-        if (tmp_index != -1) {  // Just in case we can't find the tmp attribute
-            in_layer->DeleteField(find_field_index("tmp", in_layer));
+    if (include_field_idx != -1) {
+        int tmp_index {find_field_index("tmp_inc", in_layer)};
+        if (tmp_index != -1) {  // Just in case we can't find the tmp_include attribute
+            in_layer->DeleteField(find_field_index("tmp_inc", in_layer));
+        }
+    }
+    if (pon_homes_field_idx != -1) {
+        int tmp_index {find_field_index("tmp_ph", in_layer)};
+        if (tmp_index != -1) {
+            in_layer->DeleteField(tmp_index);
         }
     }
 }
