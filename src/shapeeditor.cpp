@@ -357,7 +357,6 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
         poLayer->CreateFeature(feature.get()->Clone());
         poLayer->SetFeature(feature.release());
     }
-
     // Cleanup
     poLayer->SyncToDisk();
     GDALClose(poDS);
