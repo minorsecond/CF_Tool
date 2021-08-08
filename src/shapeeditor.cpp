@@ -92,7 +92,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     }
 
     // Prompt user if they want to set PON_HOMES to 1 if CGIS has set them all to 0.
-    if (all_pon_homes_zero) {
+    if (all_pon_homes_zero && pon_homes_field_idx != -1) {
         OverridePonHomes override = OverridePonHomes();
         override.setModal(true);
         if (override.exec() == QDialog::Accepted) {
