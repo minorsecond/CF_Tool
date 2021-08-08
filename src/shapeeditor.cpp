@@ -184,6 +184,7 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
     OGRFieldDefn type_defn("TYPE", OFTString);
     type_defn.SetWidth(254);
     in_layer->CreateField(&type_defn);
+    int structur2_idx {find_field_index("structur_2", in_layer)};
 
     if (find_field_index("structur_1", in_layer) == -1) {
         er.set_error_message("Error: Could not find structur_1 attribute in access_points layer.");
@@ -191,9 +192,20 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
         return;
     }
 
+
     for (OGRFeatureUniquePtr &feature : in_layer) {
+        std::string size {};
+        std::string new_type {};
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
-        const std::string new_type {"HANDHOLE{" + type + "}"};
+        if (structur2_idx != -1) {
+            size = feature->GetFieldAsString(structur2_idx);
+        }
+
+        if (!size.empty()) {
+            new_type = "HANDHOLE{" + type + '-' + size + '}';
+        } else {
+            new_type = "HANDHOLE{" + type + '}';
+        }
         feature->SetField("TYPE", new_type.c_str());
         in_layer->SetFeature(feature.release());
     }
