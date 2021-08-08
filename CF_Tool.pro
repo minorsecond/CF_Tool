@@ -47,6 +47,7 @@ SOURCES += \
     ui/errorwindow.cpp \
     ui/mainwindow.cpp \
     src/utility_functions.cpp \
+    ui/overrideponhomes.cpp
 
 HEADERS += \
     include/elzip.hpp \
@@ -78,11 +79,13 @@ HEADERS += \
     ui/confirmdialog.h \
     ui/errorwindow.h \
     ui/mainwindow.h \
+    ui/overrideponhomes.h
 
 FORMS += \
     ui/confirmdialog.ui \
     ui/errorwindow.ui \
-    ui/mainwindow.ui
+    ui/mainwindow.ui \
+    ui/overrideponhomes.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

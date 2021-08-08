@@ -1,5 +1,7 @@
 #include "shapeeditor.h"
 #include "ui/errorwindow.h"
+#include "ui/overrideponhomes.h"
+
 #include <iostream>
 #include <filesystem>
 #include <ogr_feature.h>
@@ -46,7 +48,8 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     ErrorWindow er;
     const std::string input_streetname_field_name {"street_nam"};
     int include_field_idx {find_field_index("include", in_layer)};  // Find include field. Returns -1 if "include" isn't present
-    std::cout << "Index: " << include_field_idx << std::endl;
+    bool all_pon_homes_zero {true};
+    bool override_pon_homes {false};
 
     if (include_field_idx == -1) {
         er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Defaulting to True.");
@@ -77,12 +80,24 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
             int ph_attr {feature->GetFieldAsInteger(pon_homes_field_idx)};
-            std::cout << "PH Attr: " << feature->GetFieldAsString(pon_homes_field_idx) << std::endl;
+            if (ph_attr == 1) {
+                all_pon_homes_zero = false;
+            }
+
             feature->SetField("tmp_ph", ph_attr);
             in_layer->SetFeature(feature.release());
         }
         std::cout << "Deleting pon_homes field at index " << pon_homes_field_idx << std::endl;
         in_layer->DeleteField(pon_homes_field_idx);
+    }
+
+    // Prompt user if they want to set PON_HOMES to 1 if CGIS has set them all to 0.
+    if (all_pon_homes_zero && pon_homes_field_idx != -1) {
+        OverridePonHomes override = OverridePonHomes();
+        override.setModal(true);
+        if (override.exec() == QDialog::Accepted) {
+            override_pon_homes = true;
+        }
     }
 
     // Find street name field
@@ -106,6 +121,11 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
     in_layer->ResetReading();  // Restart reading layer at beginning
 
+    // Ask user if they want to override the pon_homes attribute if CGIS has them all set to 0
+    if (all_pon_homes_zero) {
+        // Raise ask pon homes ui
+    }
+
     // Populate new field
     for (OGRFeatureUniquePtr &feature : in_layer) {
         std::string tmp_include_value {};
@@ -121,9 +141,11 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         feature->SetField("INCLUDE", tmp_include_value.c_str());
 
         // Populate new PON_HOMES field with values in tmp_pon_homes field
-        if (pon_homes_field_idx != -1) {
+        if (override_pon_homes) {
+            tmp_ph_value = 1;
+        } else if (pon_homes_field_idx != -1) {
             tmp_ph_value = feature->GetFieldAsInteger("tmp_ph");
-        } else {
+        } else {  // If we can't find a pon_homes field from CGIS
             tmp_ph_value = 1;
         }
         feature->SetField("PON_HOMES", tmp_ph_value);
