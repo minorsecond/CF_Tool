@@ -20,8 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setFixedHeight(this->height());
-    this->setFixedWidth(this->width());
 
     ui->NewJobButton->setDisabled(true);
 
