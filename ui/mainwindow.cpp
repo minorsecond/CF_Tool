@@ -94,22 +94,7 @@ void MainWindow::handle_cw_process_button() {
                 const std::string reproj_path {jobinfo.find_gis_path() + "\\reprojected"};
                 //ut.copy_files_in_dir(jobinfo.find_gis_path(), reproj_path);
 
-                // Reproject layers
-                for (const auto &file : std::filesystem::directory_iterator(jobinfo.find_gis_path())) {
-                    const size_t lastindex {file.path().string().find_last_of(".") + 1};
-                    const std::string extension {file.path().string().substr(lastindex)}; // Get extension
-                    if (extension == "shp") {
-                        const std::string filename {file.path().filename().string()};
-                        const std::string out_path {reproj_path + "\\" + filename};
-                        if (!ut.file_exists(out_path)) {
-                            std::cout << "Reprojecting " << file.path().string() << std::endl;
-                            //OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
-                            std::unique_ptr<OGRLayer> in_layer{ShapeEditor::shapefile_reader(file.path().string())};
-                            shp.reproject(in_layer.get(), std::stoi(utm_zone), out_path);
-                            //delete in_layer;
-                        }
-                    }
-                }
+                reproject_layers(jobinfo, reproj_path, utm_zone);
 
                 bool address_rename_error {false};
                 // Rename address files
@@ -301,6 +286,32 @@ void MainWindow::new_job_button() {
     ui->CA_Done->clear();
     ui->DA_Done->clear();
     ui->NewJobButton->setDisabled(true);
+}
+
+void MainWindow::reproject_layers(const Job &jobinfo, std::string reproj_path, std::string utm_zone) {
+    /*
+     * Reproject all layers for job
+     */
+
+    UtilityFunctions ut;
+    ShapeEditor shp;
+
+    for (const auto &file : std::filesystem::directory_iterator(jobinfo.find_gis_path())) {
+        const size_t lastindex {file.path().string().find_last_of(".") + 1};
+        const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+        if (extension == "shp") {
+            const std::string filename {file.path().filename().string()};
+            const std::string out_path {reproj_path + "\\" + filename};
+            if (!ut.file_exists(out_path)) {
+                std::cout << "Reprojecting " << file.path().string() << std::endl;
+                //OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
+                std::unique_ptr<OGRLayer> in_layer{ShapeEditor::shapefile_reader(file.path().string())};
+                shp.reproject(in_layer.get(), std::stoi(utm_zone), out_path);
+                //delete in_layer;
+            }
+        }
+    }
+
 }
 
 MainWindow::~MainWindow()
