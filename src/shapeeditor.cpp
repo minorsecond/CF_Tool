@@ -121,11 +121,6 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
     in_layer->ResetReading();  // Restart reading layer at beginning
 
-    // Ask user if they want to override the pon_homes attribute if CGIS has them all set to 0
-    if (all_pon_homes_zero) {
-        // Raise ask pon homes ui
-    }
-
     // Populate new field
     for (OGRFeatureUniquePtr &feature : in_layer) {
         std::string tmp_include_value {};
