@@ -327,7 +327,7 @@ std::string ShapeEditor::uppercase_string(std::string input_string) {
      */
 
     std::string uppercase_string {input_string};
-    for (int i {0}; i < uppercase_string.size(); i++) {
+    for (size_t i {0}; i < uppercase_string.size(); i++) {
         uppercase_string[i] = std::toupper(uppercase_string[i]);
     }
     return uppercase_string;
