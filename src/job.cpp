@@ -96,13 +96,17 @@ std::string Job::find_gis_path() const {
      */
     UtilityFunctions ut;
     const std::string download_path {ut.get_home_path() + "\\Documents\\Comsof_Jobs"};
-    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Documents path level
-        std::cout << entry.path().string() << std::endl;
-        for (const auto & city : std::filesystem::directory_iterator(entry.path())) {  // City level
-            for (const auto & job : std::filesystem::directory_iterator(city.path())) {
-                std::string search_path = job.path().string();
-                if (ut.search_string_for_substring(search_path, job_id)) {
-                    return search_path;  //TODO: only find files with .zip in the name
+    for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Iterate over states
+        if (std::filesystem::is_directory(entry)) {  // Don't iterate over files
+            for (const auto & city : std::filesystem::directory_iterator(entry.path())) {  // Iterate over Cities
+                if (std::filesystem::is_directory(city)) {
+                    for (const auto & job : std::filesystem::directory_iterator(city.path())) {  // Iterate over Jobs
+                        std::string search_path = job.path().string();
+                        std::cout << "SEARCH PATH: " << search_path << std::endl;
+                        if (ut.search_string_for_substring(search_path, job_id)) {
+                            return search_path;  //TODO: only find files with .zip in the name
+                        }
+                    }
                 }
             }
         }

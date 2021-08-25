@@ -194,6 +194,7 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
             er.set_error_message("Error: path already exists: " + out_path);
             er.exec();
             std::cout << out_path << " already exists" << std::endl;
+            std::filesystem::remove_all(tmp_dir);
         }
 
         create_directory_recursively(reproj_path_ws);

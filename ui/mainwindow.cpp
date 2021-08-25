@@ -20,8 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setFixedHeight(this->height());
-    this->setFixedWidth(this->width());
 
     ui->NewJobButton->setDisabled(true);
 
@@ -45,9 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     // Populate the UTM zone combobox
-    const int zones[10] {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    for (int zone : zones) {
-        ui->utmZoneBox->addItem(QString::fromStdString(std::to_string(zone)));
+    for (std::map<int, int>::const_iterator iter {utm_zones.begin()}; iter != utm_zones.end(); iter++) {
+        ui->utmZoneBox->addItem(QString::fromStdString(std::to_string(iter->first)));
     }
 
     // Slots
@@ -114,6 +111,7 @@ void MainWindow::handle_cw_process_button() {
                     }
                 }
 
+                bool address_rename_error {false};
                 // Rename address files
                 for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
                     const std::string filename {file.path().filename().string()};
@@ -122,9 +120,22 @@ void MainWindow::handle_cw_process_button() {
                     if (ut.search_string_for_substring(filename, "address")) {
                         const size_t lastindex {file.path().string().find_last_of(".") + 1};
                         const std::string extension {file.path().string().substr(lastindex)}; // Get extension
-                        std::cout << "Extension: " << extension << std::endl;
-                        std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
+                        std::cout << "Path: " << file.path().string() << std::endl;
+                        try {
+                            std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
+                        }  catch (std::filesystem::filesystem_error) {
+                            // Can't rename address file. User might have file open in GIS software
+                            address_rename_error = true;
+                        }
                     }
+                }
+
+                if (address_rename_error) {
+                    // This is done to only display the address rename error once, since the renamer loop is run once for each
+                    // of the four shapefile files. Otherwise, the message would display four times.
+                    er.set_error_message("Error: Could not rename address shapefile. Close all relevant layers in GIS software and rerun.");
+                    er.exec();
+                    return;
                 }
             }
             confirm.set_confirmation_message("Workspaces created.");
@@ -196,18 +207,8 @@ void MainWindow::handle_ac_process_button() {
         if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
             //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
             std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
-
-            if (ShapeEditor::find_field_index("INCLUDE", demand_points.get()) == -1) {
-                ShapeEditor::create_demand_point_fields(demand_points.get());
-                ShapeEditor::process_demand_points("include", demand_points.get());  // Populate INCLUDE, PON_HOMES, and STREETNAME
-                demand_points->SyncToDisk();
-            } else {
-                er.set_error_message("INCLUDE field already exists in addresses shapefile."
-                    " Recreate shapefile in reprojected directory and rerun to process.");
-                er.exec();
-                completed_message = "Attributes created. Skipped addresses.";
-            }
-
+            ShapeEditor::process_demand_points("include", demand_points.get());
+            demand_points->SyncToDisk();
             //delete demand_points;  // delete pointer
         }
 
