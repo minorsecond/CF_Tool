@@ -19,6 +19,7 @@ public:
 private:
     Ui::MainWindow *ui;
     void reproject_layers(const Job &jobinfo, std::string reproj_path, std::string utm_zone);
+    void rename_address_files(const std::string &reproj_path);
 
 private slots:
     void handle_cw_process_button();

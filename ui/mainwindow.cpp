@@ -95,33 +95,7 @@ void MainWindow::handle_cw_process_button() {
                 //ut.copy_files_in_dir(jobinfo.find_gis_path(), reproj_path);
 
                 reproject_layers(jobinfo, reproj_path, utm_zone);
-
-                bool address_rename_error {false};
-                // Rename address files
-                for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
-                    const std::string filename {file.path().filename().string()};
-
-                    // Rename all files with address in the name to addresses.shp (including correct extensions)
-                    if (ut.search_string_for_substring(filename, "address")) {
-                        const size_t lastindex {file.path().string().find_last_of(".") + 1};
-                        const std::string extension {file.path().string().substr(lastindex)}; // Get extension
-                        std::cout << "Path: " << file.path().string() << std::endl;
-                        try {
-                            std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
-                        }  catch (std::filesystem::filesystem_error) {
-                            // Can't rename address file. User might have file open in GIS software
-                            address_rename_error = true;
-                        }
-                    }
-                }
-
-                if (address_rename_error) {
-                    // This is done to only display the address rename error once, since the renamer loop is run once for each
-                    // of the four shapefile files. Otherwise, the message would display four times.
-                    er.set_error_message("Error: Could not rename address shapefile. Close all relevant layers in GIS software and rerun.");
-                    er.exec();
-                    return;
-                }
+                rename_address_files(reproj_path);
             }
             confirm.set_confirmation_message("Workspaces created.");
             confirm.exec();
@@ -312,6 +286,41 @@ void MainWindow::reproject_layers(const Job &jobinfo, std::string reproj_path, s
         }
     }
 
+}
+
+void MainWindow::rename_address_files(const std::string &reproj_path) {
+    /*
+     * Rename address files
+     */
+
+    UtilityFunctions ut;
+    ErrorWindow er;
+
+    bool address_rename_error {false};
+    for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
+        const std::string filename {file.path().filename().string()};
+
+        // Rename all files with address in the name to addresses.shp (including correct extensions)
+        if (ut.search_string_for_substring(filename, "address")) {
+            const size_t lastindex {file.path().string().find_last_of(".") + 1};
+            const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+            std::cout << "Path: " << file.path().string() << std::endl;
+            try {
+                std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
+            }  catch (std::filesystem::filesystem_error) {
+                // Can't rename address file. User might have file open in GIS software
+                address_rename_error = true;
+            }
+        }
+    }
+
+    if (address_rename_error) {
+        // This is done to only display the address rename error once, since the renamer loop is run once for each
+        // of the four shapefile files. Otherwise, the message would display four times.
+        er.set_error_message("Error: Could not rename address shapefile. Close all relevant layers in GIS software and rerun.");
+        er.exec();
+        return;
+    }
 }
 
 MainWindow::~MainWindow()
