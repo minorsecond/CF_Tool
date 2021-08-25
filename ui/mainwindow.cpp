@@ -153,7 +153,7 @@ void MainWindow::handle_ac_process_button() {
         // Check if input file exists. If it doesn't, set the path string to "". This will later be checked to
         // ensure that GDAL doesn't attempt to load a nonexisting file.
         size_t vector_counter {0};
-        for (std::string path : input_files) {
+        for (const std::string &path : input_files) {
             if (!ut.file_exists(path)) {
                 er.set_error_message("Warning: could not find " + path);
                 er.exec();
