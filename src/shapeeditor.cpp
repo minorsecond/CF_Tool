@@ -316,11 +316,11 @@ int ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_lay
     int field_idx {NULL};
     bool field_found {false};
     OGRFeatureDefn *lyr_def {in_layer->GetLayerDefn()};
-    int field_count {lyr_def->GetFieldCount()};
+    const int field_count {lyr_def->GetFieldCount()};
     std::cout << "Field count: " << field_count << std::endl;
     for (int idx {0}; idx < field_count; idx ++) {
         OGRFieldDefn field_def {lyr_def->GetFieldDefn(idx)};
-        std::string shp_name {field_def.GetNameRef()};
+        const std::string shp_name {field_def.GetNameRef()};
         if (shp_name == field_name) {
             field_idx = idx;  // This is the field index that will be changed
             field_found = true;
