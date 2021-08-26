@@ -18,7 +18,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    void reproject_layers(const Job &jobinfo, std::string reproj_path, std::string utm_zone);
+    void reproject_layers(const Job &jobinfo, const std::string &reproj_path, const std::string &utm_zone);
     void rename_address_files(const std::string &reproj_path);
 
 private slots:

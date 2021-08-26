@@ -262,7 +262,7 @@ void MainWindow::new_job_button() {
     ui->NewJobButton->setDisabled(true);
 }
 
-void MainWindow::reproject_layers(const Job &jobinfo, std::string reproj_path, std::string utm_zone) {
+void MainWindow::reproject_layers(const Job &jobinfo, const std::string &reproj_path, const std::string &utm_zone) {
     /*
      * Reproject all layers for job
      */
