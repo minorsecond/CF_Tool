@@ -309,7 +309,7 @@ void ShapeEditor::process_fdt_boundaries(OGRLayer *in_layer) {
 
 int ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_layer) {
     /*
-     * Find the index of field
+     * Find the index of field. Returns -1 if field could not be found.
      * @param in_layer: The layer to search
      * @param field_name: Field to search for
      */
