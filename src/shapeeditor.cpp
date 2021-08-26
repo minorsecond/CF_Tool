@@ -206,13 +206,13 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
         return;
     }
 
-
+    // Loop through AP features and add the TYPE attribute.
     for (OGRFeatureUniquePtr &feature : in_layer) {
         std::string size {};
         std::string new_type {};
         const std::string type {feature->GetFieldAsString("structur_1")};  // TODO: Handle different attribute names
         if (structur2_idx != -1) {
-            size = feature->GetFieldAsString(structur2_idx);
+            size = feature->GetFieldAsString(structur2_idx);  // Get size value from structur2 field.
         }
 
         if (!size.empty()) {
