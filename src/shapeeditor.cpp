@@ -147,7 +147,10 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
         std::string streetname {};
         if (streetname_idx != -1) {
-            streetname = uppercase_string(feature->GetFieldAsString(streetname_idx));
+            streetname = feature->GetFieldAsString(streetname_idx);
+            std::transform(streetname.begin(), streetname.end(), streetname.begin(), [] (unsigned char c) {return std::toupper(c);});
+            std::cout << "Transformed streetname: " << streetname << std::endl;
+            //streetname = uppercase_string(feature->GetFieldAsString(streetname_idx));
         } else {
             streetname = "UNKNOWN";
         }
@@ -312,20 +315,6 @@ int ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_lay
         return -1;
     }
     return field_idx;
-}
-
-std::string ShapeEditor::uppercase_string(std::string input_string) {
-    /*
-     * Convert string to an uppercase string
-     * @param input_string: Input string
-     * @return string: Input string as all uppercase
-     */
-
-    std::string uppercase_string {input_string};
-    for (size_t i {0}; i < uppercase_string.size(); i++) {
-        uppercase_string[i] = std::toupper(uppercase_string[i]);
-    }
-    return uppercase_string;
 }
 
 void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) {

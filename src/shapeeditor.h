@@ -30,7 +30,6 @@ public:
     static void process_fdt_boundaries(OGRLayer *in_layer);
     static void reproject(OGRLayer *in_layer, int utm_zone, std::string path);
     static int find_field_index (const std::string field_name, OGRLayer *in_layer);
-    static std::string uppercase_string(std::string input_string);
     ShapeEditor();
 };
 
