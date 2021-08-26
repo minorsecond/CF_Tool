@@ -71,7 +71,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         in_layer->CreateField(&tmp_include_field_def);
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
-            std::string include_attr {feature->GetFieldAsString(include_field_idx)};
+            const std::string include_attr {feature->GetFieldAsString(include_field_idx)};
             std::cout << "Include attr: " << include_attr << std::endl;
             feature->SetField("tmp_inc", include_attr.c_str());
             in_layer->SetFeature(feature.release());
@@ -81,13 +81,13 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     }
 
     // Create tmp field to store original pon_homes values, just as we did for the inlude field
-    int pon_homes_field_idx {find_field_index("pon_homes", in_layer)};  // Find pon_homes field
+    const int pon_homes_field_idx {find_field_index("pon_homes", in_layer)};  // Find pon_homes field
     if (pon_homes_field_idx != -1) {
         OGRFieldDefn tmp_pon_homes_field_defn("tmp_ph", OFTInteger);
         in_layer->CreateField(&tmp_pon_homes_field_defn);
 
         for (OGRFeatureUniquePtr &feature : in_layer) {
-            int ph_attr {feature->GetFieldAsInteger(pon_homes_field_idx)};
+            const int ph_attr {feature->GetFieldAsInteger(pon_homes_field_idx)};
             if (ph_attr == 1) {
                 all_pon_homes_zero = false;
             }
@@ -174,7 +174,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
     // Find & delete tmp include field.
     if (include_field_idx != -1) {
-        int tmp_index {find_field_index("tmp_inc", in_layer)};
+        const int tmp_index {find_field_index("tmp_inc", in_layer)};
         if (tmp_index != -1) {  // Just in case we can't find the tmp_include attribute
             in_layer->DeleteField(find_field_index("tmp_inc", in_layer));
         }
@@ -182,7 +182,7 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
 
     // Find & delete tmp pon_homes field.
     if (pon_homes_field_idx != -1) {
-        int tmp_index {find_field_index("tmp_ph", in_layer)};
+        const int tmp_index {find_field_index("tmp_ph", in_layer)};
         if (tmp_index != -1) {
             in_layer->DeleteField(tmp_index);
         }
@@ -198,7 +198,7 @@ void ShapeEditor::process_access_points(OGRLayer *in_layer) {
     OGRFieldDefn type_defn("TYPE", OFTString);
     type_defn.SetWidth(254);
     in_layer->CreateField(&type_defn);
-    int structur2_idx {find_field_index("structur_2", in_layer)};
+    const int structur2_idx {find_field_index("structur_2", in_layer)};
 
     if (find_field_index("structur_1", in_layer) == -1) {
         er.set_error_message("Error: Could not find structur_1 attribute in access_points layer.");
