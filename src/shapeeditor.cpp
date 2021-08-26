@@ -149,8 +149,6 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         if (streetname_idx != -1) {
             streetname = feature->GetFieldAsString(streetname_idx);
             std::transform(streetname.begin(), streetname.end(), streetname.begin(), [] (unsigned char c) {return std::toupper(c);});
-            std::cout << "Transformed streetname: " << streetname << std::endl;
-            //streetname = uppercase_string(feature->GetFieldAsString(streetname_idx));
         } else {
             streetname = "UNKNOWN";
         }
