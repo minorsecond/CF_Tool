@@ -45,9 +45,17 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
      * @param name_to_change: The attribute name to change to all caps
      * @param in_layer: An OGRLayer that contains the attribute name to change
      */
+
+    /*
+     * All field searches assume that CGIS provides attribute names in lowercase, which has
+     * been the case so far. If they begin also providing them in uppercase, we'll need to
+     * add nested if/else statements to try to determine if the field exists in whichever
+     * case.
+     */
+
     ErrorWindow er;
     const std::string input_streetname_field_name {"street_nam"};
-    int include_field_idx {find_field_index("include", in_layer)};  // Find include field. Returns -1 if "include" isn't present
+    const int include_field_idx {find_field_index("include", in_layer)};  // Find include field. Returns -1 if "include" isn't present
     bool all_pon_homes_zero {true};
     bool override_pon_homes {false};
 
@@ -100,7 +108,12 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         }
     }
 
-    // Find street name field
+    /*
+     * Find street name field. This if/else chain will keep trying to
+     * find a streetname attribute based on what has previously been
+     * seen in CGIS output. Keep adding nested if statements when new
+     * streetname attributes are seen.
+     */
     int streetname_idx {find_field_index("street_nam", in_layer)};
     if (streetname_idx == -1) {
         streetname_idx = find_field_index("street", in_layer);
@@ -145,6 +158,8 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         }
         feature->SetField("PON_HOMES", tmp_ph_value);
 
+        // Here, we convert streetnames to uppercase, or set the field to UNKNOWN if
+        // the CGIS streetname attribute doesn't exist.
         std::string streetname {};
         if (streetname_idx != -1) {
             streetname = feature->GetFieldAsString(streetname_idx);
@@ -157,12 +172,15 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         in_layer->SetFeature(feature.release());
     }
 
+    // Find & delete tmp include field.
     if (include_field_idx != -1) {
         int tmp_index {find_field_index("tmp_inc", in_layer)};
         if (tmp_index != -1) {  // Just in case we can't find the tmp_include attribute
             in_layer->DeleteField(find_field_index("tmp_inc", in_layer));
         }
     }
+
+    // Find & delete tmp pon_homes field.
     if (pon_homes_field_idx != -1) {
         int tmp_index {find_field_index("tmp_ph", in_layer)};
         if (tmp_index != -1) {
