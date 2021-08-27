@@ -28,7 +28,7 @@ public:
     static void process_poles(OGRLayer *in_layer);
     static void process_aerial_connections(OGRLayer *in_layer);
     static void process_fdt_boundaries(OGRLayer *in_layer);
-    static void reproject(OGRLayer *in_layer, int utm_zone, std::string path);
+    static void reproject(OGRLayer *in_layer, const int utm_zone, const std::string &path);
     static int find_field_index (const std::string field_name, OGRLayer *in_layer);
     ShapeEditor();
 };

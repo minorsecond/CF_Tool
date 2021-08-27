@@ -333,7 +333,7 @@ int ShapeEditor::find_field_index(const std::string field_name, OGRLayer *in_lay
     return field_idx;
 }
 
-void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) {
+void ShapeEditor::reproject(OGRLayer *in_layer, const int utm_zone, const std::string &path) {
     /*
      * Reproject the layer.
      * @param in_layer: The layer to reproject
@@ -355,6 +355,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     std::cout << "Searching for proj.db in " << ppath << std::endl;
     OSRSetPROJSearchPaths(proj_path);
 
+    // Convert UTM zone string into CRS integer for GDAL
     int crs {};
     for (auto it {utm_zones.begin()}; it != utm_zones.end(); it++) {
         if (it->first == utm_zone) {
@@ -364,7 +365,6 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
 
     // Get projection data
     OGRSpatialReference *srFrom {in_layer->GetSpatialRef()};
-    //OGRSpatialReference *srTo = new OGRSpatialReference;
     auto srTo = std::make_unique<OGRSpatialReference>();
 
     std::cout << "Converting to EPSG: " << crs << std::endl;
@@ -394,5 +394,4 @@ void ShapeEditor::reproject(OGRLayer *in_layer, int utm_zone, std::string path) 
     // Cleanup
     poLayer->SyncToDisk();
     GDALClose(poDS);
-    //delete srTo;
 }
