@@ -39,7 +39,7 @@ OGRLayer* ShapeEditor::create_demand_point_fields(OGRLayer *dp_layer) {
     return dp_layer;
 }
 
-void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLayer *in_layer) {
+void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
     /*
      * Process demand points
      * @param name_to_change: The attribute name to change to all caps
@@ -60,25 +60,13 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     bool override_pon_homes {false};
 
     if (include_field_idx == -1) {
-        er.set_error_message("Error: could not find " + name_to_change + " in demand points layer. Defaulting to True.");
+        er.set_error_message("Error: could not find include field in demand points layer. Defaulting to True.");
         er.exec();
     }
 
     // Create tmp field to store original include field and populate it with original include values
     // This is done to switch from the lowercase "include" field to uppercase "INCLUDE"
-    if (include_field_idx != -1) {
-        OGRFieldDefn tmp_include_field_def("tmp_inc", OFTString);
-        in_layer->CreateField(&tmp_include_field_def);
-
-        for (OGRFeatureUniquePtr &feature : in_layer) {
-            const std::string include_attr {feature->GetFieldAsString(include_field_idx)};
-            std::cout << "Include attr: " << include_attr << std::endl;
-            feature->SetField("tmp_inc", include_attr.c_str());
-            in_layer->SetFeature(feature.release());
-        }
-        std::cout << "Deleting include field at index " << include_field_idx << std::endl;
-        in_layer->DeleteField(include_field_idx);  // Delete original include field
-    }
+    create_tmp_include_field(include_field_idx, in_layer);
 
     // Create tmp field to store original pon_homes values, just as we did for the inlude field
     const int pon_homes_field_idx {find_field_index("pon_homes", in_layer)};  // Find pon_homes field
@@ -183,6 +171,27 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
         if (tmp_index != -1) {
             in_layer->DeleteField(tmp_index);
         }
+    }
+}
+
+void ShapeEditor::create_tmp_include_field(const int include_field_idx, OGRLayer *in_layer) {
+    /*
+     * Create tmp field to store original include field and populate it with original include values
+     * This is done to switch from the lowercase "include" field to uppercase "INCLUDE"
+     */
+
+    if (include_field_idx != -1) {
+        OGRFieldDefn tmp_include_field_def("tmp_inc", OFTString);
+        in_layer->CreateField(&tmp_include_field_def);
+
+        for (OGRFeatureUniquePtr &feature : in_layer) {
+            const std::string include_attr {feature->GetFieldAsString(include_field_idx)};
+            std::cout << "Include attr: " << include_attr << std::endl;
+            feature->SetField("tmp_inc", include_attr.c_str());
+            in_layer->SetFeature(feature.release());
+        }
+        std::cout << "Deleting include field at index " << include_field_idx << std::endl;
+        in_layer->DeleteField(include_field_idx);  // Delete original include field
     }
 }
 

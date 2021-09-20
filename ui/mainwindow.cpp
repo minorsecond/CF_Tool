@@ -166,7 +166,7 @@ void MainWindow::handle_ac_process_button() {
         if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
             //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
             std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
-            ShapeEditor::process_demand_points("include", demand_points.get());
+            ShapeEditor::process_demand_points(demand_points.get());
             demand_points->SyncToDisk();
             //delete demand_points;  // delete pointer
         }
