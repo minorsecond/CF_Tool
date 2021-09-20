@@ -56,6 +56,7 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
     ErrorWindow er;
     const std::string input_streetname_field_name {"street_nam"};
     const int include_field_idx {find_field_index("include", in_layer)};  // Find include field. Returns -1 if "include" isn't present
+    int pon_homes_field_idx {-1};
     bool all_pon_homes_zero {true};
     bool override_pon_homes {false};
 
@@ -69,23 +70,7 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
     create_tmp_include_field(include_field_idx, in_layer);
 
     // Create tmp field to store original pon_homes values, just as we did for the inlude field
-    const int pon_homes_field_idx {find_field_index("pon_homes", in_layer)};  // Find pon_homes field
-    if (pon_homes_field_idx != -1) {
-        OGRFieldDefn tmp_pon_homes_field_defn("tmp_ph", OFTInteger);
-        in_layer->CreateField(&tmp_pon_homes_field_defn);
-
-        for (OGRFeatureUniquePtr &feature : in_layer) {
-            const int ph_attr {feature->GetFieldAsInteger(pon_homes_field_idx)};
-            if (ph_attr == 1) {
-                all_pon_homes_zero = false;
-            }
-
-            feature->SetField("tmp_ph", ph_attr);
-            in_layer->SetFeature(feature.release());
-        }
-        std::cout << "Deleting pon_homes field at index " << pon_homes_field_idx << std::endl;
-        in_layer->DeleteField(pon_homes_field_idx);
-    }
+    create_tmp_pon_homes_field(in_layer, pon_homes_field_idx, all_pon_homes_zero);
 
     // Prompt user if they want to set PON_HOMES to 1 if CGIS has set them all to 0.
     if (all_pon_homes_zero && pon_homes_field_idx != -1) {
@@ -96,8 +81,65 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
         }
     }
 
+    int streetname_idx {find_street_name_field(in_layer)};
+    add_dp_fields(in_layer, include_field_idx, override_pon_homes, pon_homes_field_idx, streetname_idx);
+
+    delete_tmp_dp_fields(in_layer, include_field_idx, pon_homes_field_idx);
+}
+
+void ShapeEditor::create_tmp_include_field(const int include_field_idx, OGRLayer *in_layer) {
     /*
-     * Find street name field. Add new names to array as they come up.
+     * Create tmp field to store original include field and populate it with original include values
+     * This is done to switch from the lowercase "include" field to uppercase "INCLUDE"
+     */
+
+    if (include_field_idx != -1) {
+        OGRFieldDefn tmp_include_field_def("tmp_inc", OFTString);
+        in_layer->CreateField(&tmp_include_field_def);
+
+        for (OGRFeatureUniquePtr &feature : in_layer) {
+            const std::string include_attr {feature->GetFieldAsString(include_field_idx)};
+            std::cout << "Include attr: " << include_attr << std::endl;
+            feature->SetField("tmp_inc", include_attr.c_str());
+            in_layer->SetFeature(feature.release());
+        }
+        std::cout << "Deleting include field at index " << include_field_idx << std::endl;
+        in_layer->DeleteField(include_field_idx);  // Delete original include field
+    }
+}
+
+void ShapeEditor::create_tmp_pon_homes_field(OGRLayer *in_layer, int &pon_homes_idx, bool &all_zero) {
+    /* Create tmp pon_homes field and set pon_homes idx and all_zero
+     * @param in_layer: The layer to modify (create tmp pon homes field in)
+     * @param pon_homes_idx: The column number of the pon_homes attribute
+     * @param all_zero: a bool denoting whether all pon_home values are 0
+     */
+
+    pon_homes_idx = find_field_index("pon_homes", in_layer);  // Find pon_homes field
+
+    if (pon_homes_idx != -1) {
+        OGRFieldDefn tmp_pon_homes_field_defn("tmp_ph", OFTInteger);
+        in_layer->CreateField(&tmp_pon_homes_field_defn);
+
+        for (OGRFeatureUniquePtr &feature : in_layer) {
+            const int ph_attr {feature->GetFieldAsInteger(pon_homes_idx)};
+            if (ph_attr == 1) {
+                all_zero = false;
+            }
+
+            feature->SetField("tmp_ph", ph_attr);
+            in_layer->SetFeature(feature.release());
+        }
+        std::cout << "Deleting pon_homes field at index " << pon_homes_idx << std::endl;
+        in_layer->DeleteField(pon_homes_idx);
+    }
+
+}
+
+int ShapeEditor::find_street_name_field(OGRLayer *in_layer) {
+    /*
+     * Find the streetname field
+     * @param in_layer: The layer to search
      */
 
     std::array<std::string, 2> streetname_attr_names {"street_nam", "street"};
@@ -108,7 +150,15 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
         }
     }
 
-    // Add the new fields
+    return streetname_idx;
+}
+
+void ShapeEditor::add_dp_fields(OGRLayer *in_layer, int include_field_idx, bool override_pon_homes, int pon_homes_field_idx, int streetname_idx) {
+    /*
+     * Add new fields to demand points layer
+     * @param in_layer: The layer to add fields to
+     */
+
     OGRFieldDefn new_include_Field("INCLUDE", OFTString);
     OGRFieldDefn new_pon_homes_field("PON_HOMES", OFTString);
     OGRFieldDefn streetname_field("STREETNAME", OFTString);
@@ -156,6 +206,13 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
         feature->SetField("STREETNAME", streetname.c_str());
         in_layer->SetFeature(feature.release());
     }
+}
+
+void ShapeEditor::delete_tmp_dp_fields(OGRLayer *in_layer, int include_field_idx, int pon_homes_field_idx) {
+    /*
+     * Delete temporary demand point fields.
+     * @param in_layer: The layer to delete from
+     */
 
     // Find & delete tmp include field.
     if (include_field_idx != -1) {
@@ -171,27 +228,6 @@ void ShapeEditor::process_demand_points(OGRLayer *in_layer) {
         if (tmp_index != -1) {
             in_layer->DeleteField(tmp_index);
         }
-    }
-}
-
-void ShapeEditor::create_tmp_include_field(const int include_field_idx, OGRLayer *in_layer) {
-    /*
-     * Create tmp field to store original include field and populate it with original include values
-     * This is done to switch from the lowercase "include" field to uppercase "INCLUDE"
-     */
-
-    if (include_field_idx != -1) {
-        OGRFieldDefn tmp_include_field_def("tmp_inc", OFTString);
-        in_layer->CreateField(&tmp_include_field_def);
-
-        for (OGRFeatureUniquePtr &feature : in_layer) {
-            const std::string include_attr {feature->GetFieldAsString(include_field_idx)};
-            std::cout << "Include attr: " << include_attr << std::endl;
-            feature->SetField("tmp_inc", include_attr.c_str());
-            in_layer->SetFeature(feature.release());
-        }
-        std::cout << "Deleting include field at index " << include_field_idx << std::endl;
-        in_layer->DeleteField(include_field_idx);  // Delete original include field
     }
 }
 
