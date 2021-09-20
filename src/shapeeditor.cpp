@@ -109,17 +109,14 @@ void ShapeEditor::process_demand_points(const std::string name_to_change, OGRLay
     }
 
     /*
-     * Find street name field. This if/else chain will keep trying to
-     * find a streetname attribute based on what has previously been
-     * seen in CGIS output. Keep adding nested if statements when new
-     * streetname attributes are seen.
+     * Find street name field. Add new names to array as they come up.
      */
-    int streetname_idx {find_field_index("street_nam", in_layer)};
-    if (streetname_idx == -1) {
-        streetname_idx = find_field_index("street", in_layer);
+
+    std::array<std::string, 2> streetname_attr_names {"street_nam", "street"};
+    int streetname_idx {-1};
+    for (std::string attr_name : streetname_attr_names) {
         if (streetname_idx == -1) {
-            er.set_error_message("Warning: could not find streetname field");
-            er.exec();
+            streetname_idx = find_field_index(attr_name, in_layer);
         }
     }
 
@@ -346,8 +343,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, const int utm_zone, const std::s
     poDriver = GetGDALDriverManager()->GetDriverByName(pszDriverName);
 
     // Convert UTM zone integer into the EPSG code. This map will be updated
-    // as new areas become active. the N specifier, e.g. 10N, is taken for
-    // granted.
+    // as new areas become active. the N specifier, e.g. 10N, is assumed.
 
     // Proj library path
     const std::string ppath {std::filesystem::current_path().string()};
@@ -365,7 +361,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, const int utm_zone, const std::s
 
     // Get projection data
     OGRSpatialReference *srFrom {in_layer->GetSpatialRef()};
-    auto srTo = std::make_unique<OGRSpatialReference>();
+    auto srTo {std::make_unique<OGRSpatialReference>()};
 
     std::cout << "Converting to EPSG: " << crs << std::endl;
     srTo->importFromEPSG(crs);
