@@ -35,7 +35,7 @@ private:
     static void create_tmp_include_field(const int include_field_idx, OGRLayer *in_layer);
     static void create_tmp_pon_homes_field(OGRLayer *in_layer, int &pon_homes_idx, bool &all_zero);
     static int find_street_name_field(OGRLayer *in_layer);
-    static void add_dp_fields(OGRLayer *in_layer, int include_field_idx, bool override_pon_homes, int pon_homes_field_idx, int streetname_idx);
+    static void add_dp_fields(OGRLayer *in_layer, const int include_field_idx, const bool override_pon_homes, const int pon_homes_field_idx, const int streetname_idx);
     static void delete_tmp_dp_fields(OGRLayer *in_layer, int include_field_idx, int pon_homes_field_idx);
     static int find_field_index (const std::string field_name, OGRLayer *in_layer);
 };

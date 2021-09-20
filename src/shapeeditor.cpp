@@ -153,7 +153,7 @@ int ShapeEditor::find_street_name_field(OGRLayer *in_layer) {
     return streetname_idx;
 }
 
-void ShapeEditor::add_dp_fields(OGRLayer *in_layer, int include_field_idx, bool override_pon_homes, int pon_homes_field_idx, int streetname_idx) {
+void ShapeEditor::add_dp_fields(OGRLayer *in_layer, const int include_field_idx, const bool override_pon_homes, const int pon_homes_field_idx, const int streetname_idx) {
     /*
      * Add new fields to demand points layer
      * @param in_layer: The layer to add fields to
