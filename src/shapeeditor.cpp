@@ -22,6 +22,7 @@ OGRLayer* ShapeEditor::shapefile_reader(const std::string path) {
     GDALAllRegister();
     poDataset = (GDALDataset *) GDALOpenEx(path.c_str(), GDAL_OF_ALL | GDAL_OF_UPDATE, NULL, NULL, NULL);
     OGRLayer *layer {poDataset->GetLayer(0)};
+    //TODO: Figure out why poDataset can't be deleted
 
     return layer;
 }
@@ -433,6 +434,7 @@ void ShapeEditor::reproject(OGRLayer *in_layer, const int utm_zone, const std::s
         poLayer->SetFeature(feature.release());
     }
     // Cleanup
+    delete coordTrans;
     poLayer->SyncToDisk();
     GDALClose(poDS);
 }
