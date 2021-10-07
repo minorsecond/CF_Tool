@@ -86,14 +86,8 @@ std::string Job::get_location_path() const {
 std::string Job::find_gis_path() const {
     /*
      * Finds path to GIS directory inside documents directory
-     * @param job_number: The job number to search for
-     * @return: The path as a string
      */
 
-    /*
-     * Finds zip file in Downloads directory that contains job_number
-     * @param job_number: Job number to search for
-     */
     UtilityFunctions ut;
     const std::string download_path {ut.get_home_path() + "\\Documents\\Comsof_Jobs"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) { // Iterate over states

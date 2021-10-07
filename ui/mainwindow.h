@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "../src/job.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    void reproject_layers(const Job &jobinfo, const std::string &reproj_path, const std::string &utm_zone);
+    void rename_address_files(const std::string &reproj_path);
 
 private slots:
     void handle_cw_process_button();

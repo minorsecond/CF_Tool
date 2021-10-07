@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     ut.create_directories();
 
     // Populate the state selection combo boxes
-    const std::vector<QString> states {"Alabama", "Alaska", "Arizona", "Arkansas", "California",
+    const std::array<QString, 50> states {"Alabama", "Alaska", "Arizona", "Arkansas", "California",
                                           "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
                                           "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
                                           "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
@@ -94,49 +94,8 @@ void MainWindow::handle_cw_process_button() {
                 const std::string reproj_path {jobinfo.find_gis_path() + "\\reprojected"};
                 //ut.copy_files_in_dir(jobinfo.find_gis_path(), reproj_path);
 
-                // Reproject layers
-                for (const auto &file : std::filesystem::directory_iterator(jobinfo.find_gis_path())) {
-                    const size_t lastindex {file.path().string().find_last_of(".") + 1};
-                    const std::string extension {file.path().string().substr(lastindex)}; // Get extension
-                    if (extension == "shp") {
-                        const std::string filename {file.path().filename().string()};
-                        const std::string out_path {reproj_path + "\\" + filename};
-                        if (!ut.file_exists(out_path)) {
-                            std::cout << "Reprojecting " << file.path().string() << std::endl;
-                            //OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
-                            std::unique_ptr<OGRLayer> in_layer{ShapeEditor::shapefile_reader(file.path().string())};
-                            shp.reproject(in_layer.get(), std::stoi(utm_zone), out_path);
-                            //delete in_layer;
-                        }
-                    }
-                }
-
-                bool address_rename_error {false};
-                // Rename address files
-                for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
-                    const std::string filename {file.path().filename().string()};
-
-                    // Rename all files with address in the name to addresses.shp (including correct extensions)
-                    if (ut.search_string_for_substring(filename, "address")) {
-                        const size_t lastindex {file.path().string().find_last_of(".") + 1};
-                        const std::string extension {file.path().string().substr(lastindex)}; // Get extension
-                        std::cout << "Path: " << file.path().string() << std::endl;
-                        try {
-                            std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
-                        }  catch (std::filesystem::filesystem_error) {
-                            // Can't rename address file. User might have file open in GIS software
-                            address_rename_error = true;
-                        }
-                    }
-                }
-
-                if (address_rename_error) {
-                    // This is done to only display the address rename error once, since the renamer loop is run once for each
-                    // of the four shapefile files. Otherwise, the message would display four times.
-                    er.set_error_message("Error: Could not rename address shapefile. Close all relevant layers in GIS software and rerun.");
-                    er.exec();
-                    return;
-                }
+                reproject_layers(jobinfo, reproj_path, utm_zone);
+                rename_address_files(reproj_path);
             }
             confirm.set_confirmation_message("Workspaces created.");
             confirm.exec();
@@ -194,7 +153,7 @@ void MainWindow::handle_ac_process_button() {
         // Check if input file exists. If it doesn't, set the path string to "". This will later be checked to
         // ensure that GDAL doesn't attempt to load a nonexisting file.
         size_t vector_counter {0};
-        for (std::string path : input_files) {
+        for (const std::string &path : input_files) {
             if (!ut.file_exists(path)) {
                 er.set_error_message("Warning: could not find " + path);
                 er.exec();
@@ -207,7 +166,7 @@ void MainWindow::handle_ac_process_button() {
         if (input_files[0].size() > 0) {  // Demand points. Skip if the path doesn't exist (it has been set to "" in previous loop)
             //OGRLayer *demand_points {ShapeEditor::shapefile_reader(demand_points_path)};
             std::unique_ptr<OGRLayer> demand_points{ShapeEditor::shapefile_reader(demand_points_path)};
-            ShapeEditor::process_demand_points("include", demand_points.get());
+            ShapeEditor::process_demand_points(demand_points.get());
             demand_points->SyncToDisk();
             //delete demand_points;  // delete pointer
         }
@@ -301,6 +260,67 @@ void MainWindow::new_job_button() {
     ui->CA_Done->clear();
     ui->DA_Done->clear();
     ui->NewJobButton->setDisabled(true);
+}
+
+void MainWindow::reproject_layers(const Job &jobinfo, const std::string &reproj_path, const std::string &utm_zone) {
+    /*
+     * Reproject all layers for job
+     */
+
+    UtilityFunctions ut;
+    ShapeEditor shp;
+
+    for (const auto &file : std::filesystem::directory_iterator(jobinfo.find_gis_path())) {
+        const size_t lastindex {file.path().string().find_last_of(".") + 1};
+        const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+        if (extension == "shp") {
+            const std::string filename {file.path().filename().string()};
+            const std::string out_path {reproj_path + "\\" + filename};
+            if (!ut.file_exists(out_path)) {
+                std::cout << "Reprojecting " << file.path().string() << std::endl;
+                //OGRLayer *in_layer {ShapeEditor::shapefile_reader(file.path().string())};
+                std::unique_ptr<OGRLayer> in_layer{ShapeEditor::shapefile_reader(file.path().string())};
+                shp.reproject(in_layer.get(), std::stoi(utm_zone), out_path);
+                //delete in_layer;
+            }
+        }
+    }
+
+}
+
+void MainWindow::rename_address_files(const std::string &reproj_path) {
+    /*
+     * Rename address files
+     */
+
+    UtilityFunctions ut;
+    ErrorWindow er;
+
+    bool address_rename_error {false};
+    for (const auto & file : std::filesystem::directory_iterator(reproj_path)) {
+        const std::string filename {file.path().filename().string()};
+
+        // Rename all files with address in the name to addresses.shp (including correct extensions)
+        if (ut.search_string_for_substring(filename, "address")) {  //TODO: Be more specific as CGIS might return other files with address in name
+            const size_t lastindex {file.path().string().find_last_of(".") + 1};
+            const std::string extension {file.path().string().substr(lastindex)}; // Get extension
+            std::cout << "Path: " << file.path().string() << std::endl;
+            try {
+                std::filesystem::rename(file.path().string(), reproj_path + "\\addresses." + extension);
+            }  catch (std::filesystem::filesystem_error) {
+                // Can't rename address file. User might have file open in GIS software
+                address_rename_error = true;
+            }
+        }
+    }
+
+    if (address_rename_error) {
+        // This is done to only display the address rename error once, since the renamer loop is run once for each
+        // of the four shapefile files. Otherwise, the message would display four times.
+        er.set_error_message("Error: Could not rename address shapefile. Close all relevant layers in GIS software and rerun.");
+        er.exec();
+        return;
+    }
 }
 
 MainWindow::~MainWindow()

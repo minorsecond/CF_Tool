@@ -76,7 +76,7 @@ void UtilityFunctions::unzip_file(const std::string path) {
 
     // Add a _ to end of file to mark it as having been processed
     // First, get file path without .zip extension
-    size_t lastindex {path.find_last_of(".")};
+    const size_t lastindex {path.find_last_of(".")};
     std::string naked_path {path.substr(0, lastindex)};
     // Next, add the _
     naked_path += "_.zip";
@@ -97,12 +97,14 @@ void UtilityFunctions::zip_files(Job jobinfo) {
     const std::string const_base_path {tmp_path};
     const std::string target {city_state_path + "\\" + date.c_str() + "-" + jobinfo.get_job_id().c_str() + ".zip"};
     const std::wstring const_base_path_ws {std::wstring(const_base_path.begin(), const_base_path.end())};
-    std::vector<std::string> deliverable_files {"OUT_AccessStructures",
-                                                "OUT_Closures",
-                                                "OUT_DistributionCables",
-                                                "OUT_DropCables",
-                                                "OUT_DropClusters",
-                                                "OUT_FeederCables"};
+
+    // Add new filenames (without extension) to this array as needed.
+    const std::array<std::string, 6> deliverable_files {"OUT_AccessStructures",
+                                                        "OUT_Closures",
+                                                        "OUT_DistributionCables",
+                                                        "OUT_DropCables",
+                                                        "OUT_DropClusters",
+                                                        "OUT_FeederCables"};
 
     std::cout << "Scanning " << jobinfo.get_workspace_path() << " for job files" << std::endl;
     create_directory_recursively(const_base_path_ws); // Temp directory to store needed files before zipping
@@ -111,8 +113,8 @@ void UtilityFunctions::zip_files(Job jobinfo) {
         if (search_string_for_substring(job_dirs.path().string(), "output")) {
             for (const auto & file : std::filesystem::directory_iterator(job_dirs)) {
                 std::string filename {file.path().filename().string()};
-                size_t lastindex {filename.find_last_of(".")};
-                std::string naked_filename {filename.substr(0, lastindex)};
+                const size_t lastindex {filename.find_last_of(".")};
+                const std::string naked_filename {filename.substr(0, lastindex)};
                 if (std::find(deliverable_files.begin(), deliverable_files.end(), naked_filename) != deliverable_files.end()) {
                     filename.insert(3, "_" + jobinfo.get_job_id());
                     const std::string out_path {const_base_path + "\\" + filename};
@@ -141,9 +143,9 @@ std::string UtilityFunctions::get_local_date() {
     char query_date[10];
     std::string output;
 
-    auto todays_date = std::chrono::system_clock::now();
-    auto now_c = std::chrono::system_clock::to_time_t(todays_date);
-    std::tm now_tm = *std::localtime(&now_c);
+    const auto todays_date = std::chrono::system_clock::now();
+    const auto now_c = std::chrono::system_clock::to_time_t(todays_date);
+    const std::tm now_tm = *std::localtime(&now_c);
     std::strftime(query_date, sizeof query_date, "%Y%m%d", &now_tm);
 
     for (char i : query_date) {
@@ -161,7 +163,7 @@ std::string UtilityFunctions::find_zip_file(Job jobinfo) {
 
     const std::string download_path {get_home_path() + "\\Downloads\\"};
     for (const auto & entry : std::filesystem::directory_iterator(download_path)) {
-        std::string search_path = entry.path().string();
+        const std::string search_path = entry.path().string();
         if (search_string_for_substring(search_path, jobinfo.get_job_id())  && search_string_for_substring(search_path, ".zip")) {
             return search_path;  //TODO: only find files with .zip in the name
         }
@@ -185,7 +187,7 @@ void UtilityFunctions::move_extracted_files(Job jobinfo) {
         std::cout << "Moving to working dir " << out_path << std::endl;
 
         // Convert string to ws
-        std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
+        const std::wstring reproj_path_ws {std::wstring(reproj_path.begin(), reproj_path.end())};
 
         //_wrename(tmp_dir_wt, out_path_wt);
         try {
@@ -250,8 +252,8 @@ void UtilityFunctions::build_working_dirs(Job jobinfo) {
     const std::string location_path {jobinfo.get_location_path()};
     const std::string work_path {jobinfo.new_workspace_path()};
 
-    std::wstring location_path_ws {std::wstring(location_path.begin(), location_path.end())};
-    std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};
+    const std::wstring location_path_ws {std::wstring(location_path.begin(), location_path.end())};
+    const std::wstring work_path_ws {std::wstring(work_path.begin(), work_path.end())};
 
     create_directory_recursively(location_path_ws);
     create_directory_recursively(work_path_ws);
@@ -275,8 +277,8 @@ void UtilityFunctions::copy_files_in_dir(std::string in_dir, std::string out_dir
      */
 
     for (const auto & file : std::filesystem::directory_iterator(in_dir)) {
-        std::string filename {file.path().filename().string()};
-        size_t lastindex {filename.find_last_of(".")};
+        const std::string filename {file.path().filename().string()};
+        const size_t lastindex {filename.find_last_of(".")};
         const std::string dest_path {out_dir + "\\" + filename};
         if (!search_string_for_substring(file.path().string(), "reprojected")) {
             std::filesystem::copy(file.path().string(), dest_path);
