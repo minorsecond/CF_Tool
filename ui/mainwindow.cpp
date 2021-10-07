@@ -301,7 +301,7 @@ void MainWindow::rename_address_files(const std::string &reproj_path) {
         const std::string filename {file.path().filename().string()};
 
         // Rename all files with address in the name to addresses.shp (including correct extensions)
-        if (ut.search_string_for_substring(filename, "address")) {
+        if (ut.search_string_for_substring(filename, "address")) {  //TODO: Be more specific as CGIS might return other files with address in name
             const size_t lastindex {file.path().string().find_last_of(".") + 1};
             const std::string extension {file.path().string().substr(lastindex)}; // Get extension
             std::cout << "Path: " << file.path().string() << std::endl;
